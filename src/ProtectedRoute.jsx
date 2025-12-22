@@ -4,8 +4,6 @@ import { UserContext } from "./UserContext";
 
 const ProtectedRoute = ({ children }) => {
   const { user, authLoading } = useContext(UserContext);
-
-  // While auth is loading, show a loading screen
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -16,13 +14,9 @@ const ProtectedRoute = ({ children }) => {
       </div>
     );
   }
-
-  // If not authenticated, redirect to login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-
-  // If authenticated, render the component
   return children;
 };
 
