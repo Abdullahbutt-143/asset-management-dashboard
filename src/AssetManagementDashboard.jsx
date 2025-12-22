@@ -196,15 +196,6 @@ const AssetManagementDashboard = () => {
           <div className="flex items-center justify-between px-6 py-4">
             <h2 className="text-xl font-semibold text-gray-800">Dashboard</h2>
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate("/assets-request")}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Request Asset
-              </button>
-              <button className="p-2 rounded-full hover:bg-gray-100">
-                <BellIcon className="w-6 h-6 text-gray-600" />
-              </button>
               {(() => {
                 const handleLogout = async () => {
                   await logout();
