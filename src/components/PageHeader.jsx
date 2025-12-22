@@ -29,18 +29,6 @@ const PageHeader = ({ title, subtitle, showRequestButton = false }) => {
         </div>
 
         <div className="flex items-center space-x-4">
-          {showRequestButton && (
-            <button
-              onClick={() => navigate("/assets-request")}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Request Asset
-            </button>
-          )}
-
-          <button className="p-2 rounded-full hover:bg-gray-100">
-            <BellIcon className="w-6 h-6 text-gray-600" />
-          </button>
 
           {user && (
             <div className="flex items-center space-x-3 border-l pl-4">
