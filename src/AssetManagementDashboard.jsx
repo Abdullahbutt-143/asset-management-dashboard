@@ -395,7 +395,6 @@ const AssetManagementDashboard = () => {
                     <div
                       key={asset.id}
                       className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/assets/${asset.id}`)}
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
