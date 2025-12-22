@@ -1,41 +1,57 @@
-import { useState, useEffect } from 'react';
-import { secureRequest } from '../config';
+import { useEffect, useState, useContext } from "react";
+import { supabase } from "../supabaseClient";
+import { UserContext } from "../UserContext";
 
 export const useAssets = () => {
+  const { authLoading } = useContext(UserContext);
+
   const [assets, setAssets] = useState([]);
   const [totalAssets, setTotalAssets] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const fetchAssets = async () => {
     try {
       setLoading(true);
-      const data = await secureRequest('/assets/');
-      
-      if (data.results && Array.isArray(data.results)) {
-        setAssets(data.results);
-        setTotalAssets(data.total_assets || data.results.length);
-      } else {
-        setAssets(data);
-        setTotalAssets(data.length);
-      }
+
+      const { data, error } = await supabase
+        .from("assets")
+        .select(`
+          id,
+          name,
+          is_active,
+          created_at,
+          assigned_to:profiles (
+            id,
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      setAssets(data || []);
+      setTotalAssets(data?.length || 0);
     } catch (err) {
-      setError('Failed to fetch assets');
-      console.error('Error fetching assets:', err);
+      console.error("useAssets error:", err);
+      setAssets([]);
+      setTotalAssets(0);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAssets();
-  }, []);
+    if (!authLoading) {
+      fetchAssets();
+    }
+  }, [authLoading]);
 
   return {
     assets,
     totalAssets,
     loading,
-    error,
-    refetch: fetchAssets
+    refetchAssets: fetchAssets,
   };
 };
