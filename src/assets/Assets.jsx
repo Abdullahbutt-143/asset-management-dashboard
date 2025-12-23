@@ -106,7 +106,7 @@ const AssetsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen bg-linear-to-r from-gray-50 to-gray-100">
         <PageHeader
           title="Asset Management"
           subtitle="Manage and track all company assets"
@@ -141,14 +141,14 @@ const AssetsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen bg-linear-to-r from-gray-50 to-gray-100">
         <PageHeader
           title="Asset Management"
           subtitle="Manage and track all company assets"
         />
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="bg-gradient-to-r from-red-50/50 to-pink-50/50 backdrop-blur-sm border border-red-100 rounded-2xl shadow-soft p-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-100 to-pink-100 rounded-2xl mb-4">
+          <div className="bg-linear-to-r from-red-50/50 to-pink-50/50 backdrop-blur-sm border border-red-100 rounded-2xl shadow-soft p-8 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-r from-red-100 to-pink-100 rounded-2xl mb-4">
               <XMarkIcon className="h-8 w-8 text-red-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -157,7 +157,7 @@ const AssetsPage = () => {
             <p className="text-gray-600 mb-6">{error}</p>
             <button
               onClick={fetchAssets}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              className="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             >
               Try Again
             </button>
@@ -168,7 +168,7 @@ const AssetsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-r from-gray-50 to-gray-100">
       <PageHeader
         title="Asset Management"
         subtitle="Manage and track all company assets"
@@ -196,8 +196,8 @@ const AssetsPage = () => {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-blue-100/50 rounded-xl shadow-soft">
-                <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg">
+              <div className="flex items-center gap-3 px-4 py-2.5 bg-linear-to-r from-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-blue-100/50 rounded-xl shadow-soft">
+                <div className="p-2 bg-linear-to-r from-blue-100 to-indigo-100 rounded-lg">
                   <ComputerDesktopIcon className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
@@ -208,8 +208,8 @@ const AssetsPage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-emerald-50/80 to-green-50/80 backdrop-blur-sm border border-emerald-100/50 rounded-xl shadow-soft">
-                <div className="p-2 bg-gradient-to-br from-emerald-100 to-green-100 rounded-lg">
+              <div className="flex items-center gap-3 px-4 py-2.5 bg-linear-to-r from-emerald-50/80 to-green-50/80 backdrop-blur-sm border border-emerald-100/50 rounded-xl shadow-soft">
+                <div className="p-2 bg-linear-to-r from-emerald-100 to-green-100 rounded-lg">
                   <CheckBadgeIcon className="h-5 w-5 text-emerald-600" />
                 </div>
                 <div>
@@ -220,8 +220,8 @@ const AssetsPage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-purple-50/80 to-violet-50/80 backdrop-blur-sm border border-purple-100/50 rounded-xl shadow-soft">
-                <div className="p-2 bg-gradient-to-br from-purple-100 to-violet-100 rounded-lg">
+              <div className="flex items-center gap-3 px-4 py-2.5 bg-linear-to-r from-purple-50/80 to-violet-50/80 backdrop-blur-sm border border-purple-100/50 rounded-xl shadow-soft">
+                <div className="p-2 bg-linear-to-r from-purple-100 to-violet-100 rounded-lg">
                   <UserIcon className="h-5 w-5 text-purple-600" />
                 </div>
                 <div>
@@ -236,8 +236,8 @@ const AssetsPage = () => {
         </div>
 
         {filteredAssets.length === 0 ? (
-          <div className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 rounded-2xl shadow-soft p-12 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl mb-6">
+          <div className="bg-linear-to-r from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 rounded-2xl shadow-soft p-12 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-r from-blue-50 to-indigo-50 rounded-2xl mb-6">
               <ComputerDesktopIcon className="h-10 w-10 text-blue-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -281,7 +281,7 @@ const AssetsPage = () => {
                         )}
                       </div>
                     </div>
-                    <div className="p-2 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl">
+                    <div className="p-2 bg-linear-to-r from-gray-50 to-gray-100 rounded-xl">
                       <ComputerDesktopIcon className="h-5 w-5 text-gray-400" />
                     </div>
                   </div>
@@ -308,9 +308,9 @@ const AssetsPage = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50/50 to-white/50 rounded-xl">
+                  <div className="flex items-center gap-3 p-3 bg-linear-to-r from-gray-50/50 to-white/50 rounded-xl">
                     <div className="relative">
-                      <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white flex items-center justify-center font-medium text-sm">
+                      <div className="h-10 w-10 bg-linear-to-r from-blue-500 to-indigo-600 rounded-xl text-white flex items-center justify-center font-medium text-sm">
                         {getUserInitials(asset.assigned_to)}
                       </div>
                       {asset.assigned_to && (
