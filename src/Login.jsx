@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
-
+import { toast } from "react-toastify";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,20 +12,23 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (authError) {
-      setError(authError.message);
+    if (error) {
+      toast.error(error.message);
       setLoading(false);
       return;
     }
-    navigate("/"); 
+
+    toast.success("Login successful!");
+    setLoading(false);
+    navigate("/");
   };
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center">

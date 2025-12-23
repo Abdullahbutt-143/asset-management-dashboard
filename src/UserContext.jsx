@@ -15,23 +15,28 @@ export const UserProvider = ({ children }) => {
 
   // 🔹 Init auth session
   useEffect(() => {
-    const initAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  const initAuth = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-      setSession(session);
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
+    setSession(session);
+    setUser(session?.user ?? null);
+    setAuthLoading(false);
+  };
 
-      supabase.auth.onAuthStateChanged((_event, newSession) => {
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-      });
-    };
+  initAuth();
 
-    initAuth();
-  }, []);
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    setSession(newSession);
+    setUser(newSession?.user ?? null);
+  });
+  return () => {
+    subscription.unsubscribe();
+  };
+}, []);
 
   // 🔹 Fetch logged-in user profile
   useEffect(() => {
