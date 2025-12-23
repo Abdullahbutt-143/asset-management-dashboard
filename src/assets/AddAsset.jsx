@@ -1,90 +1,93 @@
-import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { 
-  ComputerDesktopIcon, 
-  TagIcon, 
-  HashtagIcon, 
-  DocumentTextIcon, 
-  UserCircleIcon, 
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import { useContext } from "react";
+import { UserContext } from "../UserContext";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  ComputerDesktopIcon,
+  TagIcon,
+  HashtagIcon,
+  DocumentTextIcon,
+  UserCircleIcon,
   ArrowLeftIcon,
   CheckCircleIcon,
-  PlusIcon
-} from '@heroicons/react/24/outline';
-import { supabase } from '../supabaseClient';
+  PlusIcon,
+} from "@heroicons/react/24/outline";
+import { supabase } from "../supabaseClient";
 
 const AddAssetPage = () => {
   const navigate = useNavigate();
   const formRef = useRef(null);
-  
+  const { users, loading: usersLoading } = useContext(UserContext);
   const [formData, setFormData] = useState({
-    name: '',
-    tag: '',
-    serial: '',
-    description: '',
+    name: "",
+    tag: "",
+    serial: "",
+    description: "",
     is_active: true,
-    assigned_to: null
+    assigned_to: null,
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [assignedUser, setAssignedUser] = useState(null);
-
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
-      newErrors.name = 'Asset name is required';
+      newErrors.name = "Asset name is required";
     }
-    
+
     if (!formData.tag.trim()) {
-      newErrors.tag = 'Asset tag is required';
+      newErrors.tag = "Asset tag is required";
     }
-    
+
     if (!formData.serial.trim()) {
-      newErrors.serial = 'Serial number is required';
+      newErrors.serial = "Serial number is required";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
+      toast.error("Please fix the errors in the form");
       return;
     }
 
     setLoading(true);
-    
+
     try {
       const { data, error } = await supabase
-        .from('assets')
-        .insert([{
-          name: formData.name,
-          tag: formData.tag,
-          serial: formData.serial,
-          description: formData.description || null,
-          is_active: formData.is_active,
-          assigned_to: assignedUser?.id || null,
-          created_at: new Date().toISOString()
-        }])
+        .from("assets")
+        .insert([
+          {
+            name: formData.name,
+            tag: formData.tag,
+            serial: formData.serial,
+            description: formData.description || null,
+            is_active: formData.is_active,
+            assigned_to: assignedUser?.id || null,
+            created_at: new Date().toISOString(),
+          },
+        ])
         .select()
         .single();
 
@@ -92,7 +95,7 @@ const AddAssetPage = () => {
         throw error;
       }
 
-      toast.success('Asset added successfully!', {
+      toast.success("Asset added successfully!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -103,27 +106,26 @@ const AddAssetPage = () => {
 
       // Reset form
       setFormData({
-        name: '',
-        tag: '',
-        serial: '',
-        description: '',
+        name: "",
+        tag: "",
+        serial: "",
+        description: "",
         is_active: true,
-        assigned_to: null
+        assigned_to: null,
       });
       setAssignedUser(null);
       setErrors({});
-      
+
       if (formRef.current) {
         formRef.current.reset();
       }
 
       // Navigate back to assets page after 2 seconds
       setTimeout(() => {
-        navigate('/assets');
+        navigate("/assets");
       }, 2000);
-
     } catch (error) {
-      console.error('Error adding asset:', error);
+      console.error("Error adding asset:", error);
       toast.error(`Failed to add asset: ${error.message}`, {
         position: "top-right",
         autoClose: 5000,
@@ -139,43 +141,45 @@ const AddAssetPage = () => {
 
   const handleReset = () => {
     setFormData({
-      name: '',
-      tag: '',
-      serial: '',
-      description: '',
+      name: "",
+      tag: "",
+      serial: "",
+      description: "",
       is_active: true,
-      assigned_to: null
+      assigned_to: null,
     });
     setAssignedUser(null);
     setErrors({});
     if (formRef.current) {
       formRef.current.reset();
     }
-    toast.info('Form cleared', {
+    toast.info("Form cleared", {
       position: "top-right",
       autoClose: 2000,
     });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       <ToastContainer />
-      
+
       <div className="py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
             <button
-              onClick={() => navigate('/assets')}
+              onClick={() => navigate("/assets")}
               className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mb-4 transition-colors"
             >
               <ArrowLeftIcon className="h-4 w-4 mr-2" />
               Back to Assets
             </button>
-            
+
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Add New Asset</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Add New Asset
+                </h1>
                 <p className="mt-2 text-gray-600">
                   Register a new asset to your inventory
                 </p>
@@ -196,7 +200,9 @@ const AddAssetPage = () => {
                     <div className="p-2 bg-blue-100 rounded-lg">
                       <ComputerDesktopIcon className="h-6 w-6 text-blue-600" />
                     </div>
-                    <h2 className="text-xl font-semibold text-gray-900">Asset Information</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Asset Information
+                    </h2>
                   </div>
 
                   {/* Name Field */}
@@ -213,7 +219,9 @@ const AddAssetPage = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        className={`block w-full pl-10 pr-3 py-3 border ${errors.name ? 'border-red-300' : 'border-gray-300'} rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                        className={`block w-full pl-10 pr-3 py-3 border ${
+                          errors.name ? "border-red-300" : "border-gray-300"
+                        } rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
                         placeholder="e.g., MacBook Pro 16-inch"
                       />
                     </div>
@@ -241,7 +249,9 @@ const AddAssetPage = () => {
                           name="tag"
                           value={formData.tag}
                           onChange={handleChange}
-                          className={`block w-full pl-10 pr-3 py-3 border ${errors.tag ? 'border-red-300' : 'border-gray-300'} rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                          className={`block w-full pl-10 pr-3 py-3 border ${
+                            errors.tag ? "border-red-300" : "border-gray-300"
+                          } rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
                           placeholder="e.g., ASSET-001"
                         />
                       </div>
@@ -267,7 +277,9 @@ const AddAssetPage = () => {
                           name="serial"
                           value={formData.serial}
                           onChange={handleChange}
-                          className={`block w-full pl-10 pr-3 py-3 border ${errors.serial ? 'border-red-300' : 'border-gray-300'} rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                          className={`block w-full pl-10 pr-3 py-3 border ${
+                            errors.serial ? "border-red-300" : "border-gray-300"
+                          } rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
                           placeholder="e.g., C02XYZ123ABC"
                         />
                       </div>
@@ -299,7 +311,8 @@ const AddAssetPage = () => {
                       />
                     </div>
                     <p className="text-xs text-gray-500">
-                      Maximum 500 characters. Currently {formData.description.length}/500
+                      Maximum 500 characters. Currently{" "}
+                      {formData.description.length}/500
                     </p>
                   </div>
                 </div>
@@ -310,17 +323,28 @@ const AddAssetPage = () => {
                     <div className="p-2 bg-green-100 rounded-lg">
                       <CheckCircleIcon className="h-6 w-6 text-green-600" />
                     </div>
-                    <h2 className="text-xl font-semibold text-gray-900">Asset Status</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Asset Status
+                    </h2>
                   </div>
 
                   {/* Active Toggle */}
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-white rounded-lg border border-gray-200">
-                        <CheckCircleIcon className={`h-5 w-5 ${formData.is_active ? 'text-green-600' : 'text-gray-400'}`} />
+                        <CheckCircleIcon
+                          className={`h-5 w-5 ${
+                            formData.is_active
+                              ? "text-green-600"
+                              : "text-gray-400"
+                          }`}
+                        />
                       </div>
                       <div>
-                        <label htmlFor="is_active" className="block text-sm font-medium text-gray-900 cursor-pointer">
+                        <label
+                          htmlFor="is_active"
+                          className="block text-sm font-medium text-gray-900 cursor-pointer"
+                        >
                           Active Asset
                         </label>
                         <p className="text-sm text-gray-500">
@@ -338,55 +362,67 @@ const AddAssetPage = () => {
                         className="sr-only"
                       />
                       <div
-                        className={`block w-14 h-8 rounded-full cursor-pointer transition-colors duration-200 ${formData.is_active ? 'bg-green-500' : 'bg-gray-300'}`}
-                        onClick={() => setFormData(prev => ({ ...prev, is_active: !prev.is_active }))}
+                        className={`block w-14 h-8 rounded-full cursor-pointer transition-colors duration-200 ${
+                          formData.is_active ? "bg-green-500" : "bg-gray-300"
+                        }`}
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            is_active: !prev.is_active,
+                          }))
+                        }
                       >
                         <div
-                          className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-200 ${formData.is_active ? 'transform translate-x-6' : ''}`}
+                          className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-200 ${
+                            formData.is_active ? "transform translate-x-6" : ""
+                          }`}
                         ></div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Assignment Section */}
                 <div className="space-y-6 pt-6 border-t border-gray-200">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-purple-100 rounded-lg">
                       <UserCircleIcon className="h-6 w-6 text-purple-600" />
                     </div>
-                    <h2 className="text-xl font-semibold text-gray-900">Assignment (Optional)</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Assign Asset (Optional)
+                    </h2>
                   </div>
 
-                  <div className="p-4 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white rounded-lg border border-gray-200">
-                        <UserCircleIcon className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {assignedUser ? 'Assigned to user' : 'Not assigned to anyone'}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {assignedUser 
-                            ? `${assignedUser.first_name} ${assignedUser.last_name} (${assignedUser.email})`
-                            : 'Assign this asset to a team member later'
-                          }
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          // You can implement a user selection modal here
-                          toast.info('User assignment feature coming soon!', {
-                            position: "top-right",
-                          });
-                        }}
-                        className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                      >
-                        {assignedUser ? 'Change' : 'Assign'}
-                      </button>
-                    </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Assign to User
+                    </label>
+
+                    <select
+                      value={assignedUser?.id || ""}
+                      onChange={(e) => {
+                        const selectedUser = users.find(
+                          (u) => u.id === e.target.value
+                        );
+                        setAssignedUser(selectedUser || null);
+                      }}
+                      disabled={usersLoading}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">— Not Assigned —</option>
+
+                      {users.map((user) => (
+                        <option key={user.id} value={user.id}>
+                          {user.first_name} {user.last_name} ({user.email})
+                        </option>
+                      ))}
+                    </select>
+
+                    {assignedUser && (
+                      <p className="text-sm text-green-700 mt-2">
+                        ✔ Assigned to {assignedUser.first_name}{" "}
+                        {assignedUser.last_name}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -409,7 +445,7 @@ const AddAssetPage = () => {
                       </>
                     )}
                   </button>
-                  
+
                   <button
                     type="button"
                     onClick={handleReset}
@@ -423,11 +459,14 @@ const AddAssetPage = () => {
 
               {/* Form Tips */}
               <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                <h3 className="text-sm font-semibold text-blue-900 mb-2">💡 Tips for adding assets</h3>
+                <h3 className="text-sm font-semibold text-blue-900 mb-2">
+                  💡 Tips for adding assets
+                </h3>
                 <ul className="text-sm text-blue-800 space-y-1">
                   <li className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5"></span>
-                    Asset tags should be unique and follow your organization's naming convention
+                    Asset tags should be unique and follow your organization's
+                    naming convention
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5"></span>

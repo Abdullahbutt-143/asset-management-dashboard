@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
+import { useContext } from "react";
 
 export const UserContext = createContext();
 
@@ -8,12 +9,9 @@ export const UserProvider = ({ children }) => {
   const [profile, setProfile] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-
-  // 🔹 Init auth session
   useEffect(() => {
   const initAuth = async () => {
     const {
@@ -38,7 +36,6 @@ export const UserProvider = ({ children }) => {
   };
 }, []);
 
-  // 🔹 Fetch logged-in user profile
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user?.id) {
@@ -60,7 +57,6 @@ export const UserProvider = ({ children }) => {
     fetchProfile();
   }, [user]);
 
-  // 🔹 Fetch all users (admin)
   useEffect(() => {
     if (!authLoading) fetchUsers();
   }, [authLoading]);
