@@ -10,7 +10,7 @@ import {
   PlusIcon,
 } from "@heroicons/react/24/outline";
 import { useAssets } from "./hooks/useAssets";
-// import { useRequests } from "./hooks/useRequests";
+import { useRequests } from "./hooks/useRequests";
 import { supabase } from "./supabaseClient";
 
 const AssetManagementDashboard = () => {
@@ -24,7 +24,7 @@ const AssetManagementDashboard = () => {
     authLoading,
   } = useContext(UserContext);
   const { totalAssets, loading: assetsLoading, assets } = useAssets();
-  // const { activeRequests, loading: requestsLoading } = useRequests();
+  const { activeRequests, loading: requestsLoading } = useRequests();
 
   const [stats, setStats] = useState({
     totalUsers: 0,
