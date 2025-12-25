@@ -12,6 +12,7 @@ import {
 import { useAssets } from "./hooks/useAssets";
 import { useRequests } from "./hooks/useRequests";
 import { supabase } from "./supabaseClient";
+import Sidebar from "./components/Sidebar";
 
 const AssetManagementDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -118,79 +119,13 @@ const AssetManagementDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <div
-        className={`${
-          isSidebarOpen ? "w-64" : "w-20"
-        } bg-white shadow-lg transition-all duration-300`}
-      >
-        <div className="p-6 border-b border-gray-200">
-          <h1
-            className={`text-2xl font-bold text-gray-800 ${
-              !isSidebarOpen && "hidden"
-            }`}
-          >
-            Jugrafiya Assets
-          </h1>
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100"
-            >
-              <CubeIcon className="w-6 h-6 text-gray-600" />
-            </button>
-          </div>
-        </div>
-
-        <nav className="mt-6">
-          {[
-            "dashboard",
-            "assets",
-            "users",
-            "requests",
-            "requested-assets",
-            "add-asset",
-          ].map((item) => (
-            <button
-              key={item}
-              onClick={() => {
-                setActiveTab(item);
-                if (item === "users") navigate("/users");
-                if (item === "dashboard") navigate("/");
-                if (item === "assets") navigate("/assets");
-                if (item === "requests") navigate("/assets-request");
-                if (item === "requested-assets") navigate("/get-assets");
-                if (item === "add-asset") navigate("/add-asset");
-              }}
-              className={`w-full flex items-center px-6 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors ${
-                activeTab === item
-                  ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
-                  : ""
-              }`}
-            >
-              <div className="w-6 h-6 text-gray-500 mr-3">
-                {item === "users" && <UserGroupIcon className="w-6 h-6" />}
-                {item === "assets" && (
-                  <ComputerDesktopIcon className="w-6 h-6" />
-                )}
-                {item === "requests" && (
-                  <ClipboardDocumentCheckIcon className="w-6 h-6" />
-                )}
-                {item === "requested-assets" && (
-                  <ComputerDesktopIcon className="w-6 h-6" />
-                )}
-                {item === "dashboard" && <CubeIcon className="w-6 h-6" />}
-                {item === "add-asset" && <PlusIcon className="w-6 h-6" />}
-                {item === "reports" && (
-                  <ClipboardDocumentCheckIcon className="w-6 h-6" />
-                )}
-              </div>
-              <span className={`capitalize ${!isSidebarOpen && "hidden"}`}>
-                {item}
-              </span>
-            </button>
-          ))}
-        </nav>
-      </div>
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        navigate={navigate}
+      />
       <div className="flex-1 overflow-auto">
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between px-6 py-4">
