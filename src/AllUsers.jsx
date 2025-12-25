@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 import PageHeader from "./components/PageHeader";
+import Sidebar from "./components/Sidebar";
 import { UserContext } from "./UserContext";
 
 const AllUsers = () => {
@@ -9,6 +10,8 @@ const AllUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("users");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { authLoading } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -75,9 +78,17 @@ const AllUsers = () => {
 
   /* ---------------- MAIN UI ---------------- */
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageHeader title="All Users" subtitle="View all employees in the system" />
-      <div className="p-6">
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        navigate={navigate}
+      />
+      <main className="flex-1">
+        <PageHeader title="All Users" subtitle="View all employees in the system" />
+        <div className="p-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <div>
@@ -140,7 +151,8 @@ const AllUsers = () => {
             </table>
           </div>
         </div>
-      </div>
+        </div>
+      </main>
     </div>
   );
 };

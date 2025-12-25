@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
+import Sidebar from "../components/Sidebar";
 import { supabase } from "../supabaseClient";
 
 const GetAssets = () => {
+  const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAdmin] = useState(true);
+  const [activeTab, setActiveTab] = useState("manage-requests");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const fetchRequests = async () => {
     try {
@@ -148,10 +153,18 @@ const GetAssets = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100">
-      <PageHeader title="Asset Requests" subtitle="Manage and track asset requests" />
-      
-      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    <div className="flex min-h-screen bg-linear-to-b from-gray-50 to-gray-100">
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        navigate={navigate}
+      />
+      <main className="flex-1">
+        <PageHeader title="Asset Requests" subtitle="Manage and track asset requests" />
+        
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-200 bg-linear-to-r from-gray-50 to-gray-100">
@@ -317,6 +330,7 @@ const GetAssets = () => {
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 };

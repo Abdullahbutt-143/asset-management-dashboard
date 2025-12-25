@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   MagnifyingGlassIcon,
   ComputerDesktopIcon,
@@ -7,16 +8,20 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import PageHeader from "../components/PageHeader";
+import Sidebar from "../components/Sidebar";
 import { UserContext } from "../UserContext";
 import { supabase } from "../supabaseClient";
 
 const AssetsPage = () => {
+  const navigate = useNavigate();
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalAssets, setTotalAssets] = useState(0);
+  const [activeTab, setActiveTab] = useState("assets");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const { authLoading } = useContext(UserContext);
 
@@ -168,13 +173,21 @@ const AssetsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-r from-gray-50 to-gray-100">
-      <PageHeader
-        title="Asset Management"
-        subtitle="Manage and track all company assets"
+    <div className="flex min-h-screen bg-linear-to-r from-gray-50 to-gray-100">
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        navigate={navigate}
       />
+      <main className="flex-1">
+        <PageHeader
+          title="Asset Management"
+          subtitle="Manage and track all company assets"
+        />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/40 shadow-soft p-6 mb-8 transition-all duration-300">
           <div className="flex flex-col lg:flex-row justify-between gap-6">
             <div className="relative max-w-md w-full">
@@ -352,7 +365,8 @@ const AssetsPage = () => {
             </p>
           </div>
         )}
-      </div>
+        </div>
+      </main>
     </div>
   );
 };

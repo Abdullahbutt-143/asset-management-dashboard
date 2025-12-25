@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
+import Sidebar from "../components/Sidebar";
 import { supabase } from "../supabaseClient";
 
 const AssetRequestPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     reason: "",
     quantity: 1,
@@ -10,6 +13,8 @@ const AssetRequestPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [activeTab, setActiveTab] = useState("request-asset");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,13 +75,21 @@ const AssetRequestPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageHeader
-        title="Request an Asset"
-        subtitle="Submit a request for company assets you need"
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        navigate={navigate}
       />
+      <main className="flex-1">
+        <PageHeader
+          title="Request an Asset"
+          subtitle="Submit a request for company assets you need"
+        />
 
-      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white shadow rounded-lg">
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -151,6 +164,7 @@ const AssetRequestPage = () => {
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 };
