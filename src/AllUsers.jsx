@@ -12,6 +12,7 @@ const AllUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("users");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   const { authLoading } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -39,7 +40,7 @@ const AllUsers = () => {
     }
   }, [authLoading]);
 
-  /* ---------------- FILTER ---------------- */
+  /* ---------------- FILTER USERS ---------------- */
   const filteredUsers = users.filter(
     (user) =>
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,71 +87,96 @@ const AllUsers = () => {
         setIsSidebarOpen={setIsSidebarOpen}
         navigate={navigate}
       />
+
       <main className="flex-1">
         <PageHeader title="All Users" subtitle="View all employees in the system" />
+
         <div className="p-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Users</h2>
+
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mt-4 sm:mt-0 pl-4 pr-4 py-2 border border-gray-300 rounded-lg w-64"
+              />
             </div>
 
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="mt-4 sm:mt-0 pl-4 pr-4 py-2 border border-gray-300 rounded-lg w-64"
-            />
-          </div>
+            <div className="mb-4 text-sm text-gray-600">
+              Total users: <strong>{users.length}</strong>
+            </div>
 
-          <div className="mb-4 text-sm text-gray-600">
-            Total users: <strong>{users.length}</strong>
-          </div>
-
-          <div className="overflow-hidden rounded-lg border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                </tr>
-              </thead>
-
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.length === 0 ? (
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                   <tr>
-                    <td colSpan="3" className="px-6 py-8 text-center text-gray-500">
-                      No users found
-                    </td>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      User
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Action
+                    </th>
                   </tr>
-                ) : (
-                  filteredUsers.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900">
-                          {user.first_name} {user.last_name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          ID: {user.id}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Active
-                        </span>
+                </thead>
+
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="px-6 py-8 text-center text-gray-500"
+                      >
+                        No users found
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredUsers.map((user) => (
+                      <tr key={user.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-gray-900">
+                            {user.first_name} {user.last_name}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ID: {user.id}
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.email}
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Active
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() =>
+                              navigate(`/assets?userId=${user.id}`)
+                            }
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+                          >
+                            View Assets
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
         </div>
       </main>
     </div>
