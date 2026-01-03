@@ -9,6 +9,7 @@ import AssetsPage from "./assets/Assets";
 import AssetRequestPage from "./assets/AssetRequestPage";
 import GetAssets from "./assets/GetAssets";
 import AddAssetPage from "./assets/AddAsset";
+import MyRequests from "./assets/MyRequests";
 function App() {
   return (
     <UserProvider>
@@ -64,6 +65,14 @@ function App() {
               <AdminRoute>
                 <GetAssets />
               </AdminRoute>
+            }
+          />
+          <Route
+            path="/my-requests"
+            element={
+              <ProtectedRoute>
+                <MyRequests />
+              </ProtectedRoute>
             }
           />
         </Routes>

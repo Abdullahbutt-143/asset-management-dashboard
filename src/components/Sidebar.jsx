@@ -11,6 +11,7 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen, nav
   const allMenuItems = [
     { key: "dashboard", label: "dashboard", icon: CubeIcon, path: "/", adminOnly: false },
     { key: "assets", label: "assets", icon: ComputerDesktopIcon, path: "/assets", adminOnly: false },
+    { key: "my-requests", label: "my-requests", icon: ClipboardDocumentCheckIcon, path: "/my-requests", adminOnly: false },
     { key: "users", label: "users", icon: UserGroupIcon, path: "/users", adminOnly: false },
     { key: "requests", label: "requests", icon: ClipboardDocumentCheckIcon, path: "/assets-request", adminOnly: false },
     { key: "requested-assets", label: "requested-assets", icon: ComputerDesktopIcon, path: "/get-assets", adminOnly: true },
