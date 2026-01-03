@@ -4,13 +4,13 @@ import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
 import { supabase } from "../supabaseClient";
 import { UserContext } from "../UserContext";
+import { isAdmin } from "../utils/adminUtils";
 
 const GetAssets = () => {
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isAdmin] = useState(true);
   const [activeTab, setActiveTab] = useState("manage-requests");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { profile } = useContext(UserContext);
@@ -41,12 +41,16 @@ const GetAssets = () => {
       const userIds = [...new Set(requestsData.map(r => r.user_id))];
 
       // 3️⃣ Fetch profiles
-      const { data: profilesData, error: profError } = await supabase
-        .from("profiles")
-        .select("id, first_name, last_name, email")
-        .in("id", userIds);
+      let profilesData = [];
+      if (userIds.length > 0) {
+        const { data: pData, error: profError } = await supabase
+          .from("profiles")
+          .select("id, first_name, last_name, email")
+          .in("id", userIds);
 
-      if (profError) throw profError;
+        if (profError) throw profError;
+        profilesData = pData || [];
+      }
 
       // 4️⃣ Map profiles
       const profileMap = {};
@@ -213,7 +217,7 @@ const GetAssets = () => {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Date
                   </th>
-                  {isAdmin && (
+                  {isAdmin(profile) && (
                     <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Actions
                     </th>
@@ -264,7 +268,7 @@ const GetAssets = () => {
                         <span>{formatDate(request.created_at)}</span>
                       </div>
                     </td>
-                    {isAdmin && (
+                    {isAdmin(profile) && (
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         {request.status === "requested" ? (
                           <div className="flex space-x-2">
