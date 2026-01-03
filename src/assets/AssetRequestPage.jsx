@@ -1,5 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
 import { supabase } from "../supabaseClient";
@@ -56,9 +57,9 @@ const AssetRequestPage = () => {
       if (error) throw error;
 
       // 3️⃣ Success
-      setMessage({
-        type: "success",
-        text: "Asset request submitted successfully!",
+      toast.success("Asset request submitted successfully!", {
+        position: "top-right",
+        autoClose: 3000,
       });
 
       setFormData({
@@ -67,9 +68,9 @@ const AssetRequestPage = () => {
       });
     } catch (error) {
       console.error("Supabase error:", error);
-      setMessage({
-        type: "error",
-        text: error.message || "Failed to submit request.",
+      toast.error(error.message || "Failed to submit request.", {
+        position: "top-right",
+        autoClose: 3000,
       });
     } finally {
       setLoading(false);
