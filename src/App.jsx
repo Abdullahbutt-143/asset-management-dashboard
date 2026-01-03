@@ -37,9 +37,9 @@ function App() {
           <Route
             path="/add-asset"
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <AddAssetPage />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
           <Route
@@ -61,9 +61,9 @@ function App() {
           <Route
             path="/get-assets"
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <GetAssets />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
         </Routes>

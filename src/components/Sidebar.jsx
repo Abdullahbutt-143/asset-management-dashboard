@@ -13,8 +13,8 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen, nav
     { key: "assets", label: "assets", icon: ComputerDesktopIcon, path: "/assets", adminOnly: true },
     { key: "users", label: "users", icon: UserGroupIcon, path: "/users", adminOnly: false },
     { key: "requests", label: "requests", icon: ClipboardDocumentCheckIcon, path: "/assets-request", adminOnly: false },
-    { key: "requested-assets", label: "requested-assets", icon: ComputerDesktopIcon, path: "/get-assets", adminOnly: false },
-    { key: "add-asset", label: "add-asset", icon: PlusIcon, path: "/add-asset", adminOnly: false },
+    { key: "requested-assets", label: "requested-assets", icon: ComputerDesktopIcon, path: "/get-assets", adminOnly: true },
+    { key: "add-asset", label: "add-asset", icon: PlusIcon, path: "/add-asset", adminOnly: true },
   ];
 
   // Filter menu items based on admin status
