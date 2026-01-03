@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
 import { supabase } from "../supabaseClient";
+import { UserContext } from "../UserContext";
 
 const AssetRequestPage = () => {
   const navigate = useNavigate();
+  const { profile } = useContext(UserContext);
   const [formData, setFormData] = useState({
     reason: "",
     quantity: 1,
@@ -82,6 +84,7 @@ const AssetRequestPage = () => {
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         navigate={navigate}
+        userProfile={profile}
       />
       <main className="flex-1">
         <PageHeader
