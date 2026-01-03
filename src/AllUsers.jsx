@@ -77,7 +77,6 @@ const AllUsers = () => {
       </div>
     );
   }
-
   /* ---------------- MAIN UI ---------------- */
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -89,10 +88,8 @@ const AllUsers = () => {
         navigate={navigate}
         userProfile={profile}
       />
-
       <main className="flex-1">
         <PageHeader title="All Users" subtitle="View all employees in the system" />
-
         <div className="p-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
@@ -185,5 +182,4 @@ const AllUsers = () => {
     </div>
   );
 };
-
 export default AllUsers;
