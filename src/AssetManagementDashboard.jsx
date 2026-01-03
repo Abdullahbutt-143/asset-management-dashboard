@@ -372,7 +372,8 @@ const AssetManagementDashboard = () => {
               </div>
             )}
 
-            {/* Quick Actions */}
+            {/* Quick Actions (ADMIN ONLY) */}
+            {isAdmin(currentUserProfile) && (
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Quick Actions
@@ -427,6 +428,7 @@ const AssetManagementDashboard = () => {
                 </button>
               </div>
             </div>
+            )}
           </div>
         </main>
       </div>
