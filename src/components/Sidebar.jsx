@@ -10,7 +10,7 @@ import { isAdmin } from "../utils/adminUtils";
 const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen, navigate, userProfile }) => {
   const allMenuItems = [
     { key: "dashboard", label: "dashboard", icon: CubeIcon, path: "/", adminOnly: false },
-    { key: "assets", label: "assets", icon: ComputerDesktopIcon, path: "/assets", adminOnly: true },
+    { key: "assets", label: "assets", icon: ComputerDesktopIcon, path: "/assets", adminOnly: false },
     { key: "users", label: "users", icon: UserGroupIcon, path: "/users", adminOnly: false },
     { key: "requests", label: "requests", icon: ClipboardDocumentCheckIcon, path: "/assets-request", adminOnly: false },
     { key: "requested-assets", label: "requested-assets", icon: ComputerDesktopIcon, path: "/get-assets", adminOnly: true },

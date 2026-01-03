@@ -4,6 +4,7 @@ import { supabase } from "../supabaseClient";
 import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "../UserContext";
+import { isAdmin } from "../utils/adminUtils";
 import {
   Search,
   Filter,
@@ -64,6 +65,9 @@ const AssetsPage = () => {
 
     if (userId) {
       query = query.eq("assigned_to", userId);
+    } else if (!isAdmin(profile)) {
+      // If user is not admin and no userId param, show only their own assets
+      query = query.eq("assigned_to", profile?.id);
     }
 
     const { data, error } = await query;

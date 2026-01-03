@@ -45,9 +45,9 @@ function App() {
           <Route
             path="/assets"
             element={
-              <AdminRoute>
+              <ProtectedRoute>
                 <AssetsPage />
-              </AdminRoute>
+              </ProtectedRoute>
             }
           />
           <Route
