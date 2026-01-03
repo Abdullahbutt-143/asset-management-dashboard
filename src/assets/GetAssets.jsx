@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
 import { supabase } from "../supabaseClient";
+import { UserContext } from "../UserContext";
 
 const GetAssets = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const GetAssets = () => {
   const [isAdmin] = useState(true);
   const [activeTab, setActiveTab] = useState("manage-requests");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { profile } = useContext(UserContext);
 
   const fetchRequests = async () => {
     try {
@@ -160,6 +162,7 @@ const GetAssets = () => {
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         navigate={navigate}
+        userProfile={profile}
       />
       <main className="flex-1">
         <PageHeader title="Asset Requests" subtitle="Manage and track asset requests" />

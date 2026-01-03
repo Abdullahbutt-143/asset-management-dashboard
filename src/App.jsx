@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./UserContext";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 import AssetManagementDashboard from "./AssetManagementDashboard";
 import AllUsers from "./AllUsers";
 import Login from "./Login";
@@ -44,9 +45,9 @@ function App() {
           <Route
             path="/assets"
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <AssetsPage />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
           <Route

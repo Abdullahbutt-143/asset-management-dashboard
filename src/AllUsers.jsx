@@ -4,6 +4,7 @@ import { supabase } from "./supabaseClient";
 import PageHeader from "./components/PageHeader";
 import Sidebar from "./components/Sidebar";
 import { UserContext } from "./UserContext";
+import { isAdmin } from "./utils/adminUtils";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
@@ -13,7 +14,7 @@ const AllUsers = () => {
   const [activeTab, setActiveTab] = useState("users");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const { authLoading } = useContext(UserContext);
+  const { authLoading, profile } = useContext(UserContext);
   const navigate = useNavigate();
 
   /* ---------------- FETCH USERS ---------------- */
@@ -86,6 +87,7 @@ const AllUsers = () => {
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         navigate={navigate}
+        userProfile={profile}
       />
 
       <main className="flex-1">
@@ -122,9 +124,11 @@ const AllUsers = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Action
-                    </th>
+                    {isAdmin(profile) && (
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Action
+                      </th>
+                    )}
                   </tr>
                 </thead>
 
@@ -132,7 +136,7 @@ const AllUsers = () => {
                   {filteredUsers.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="4"
+                        colSpan={isAdmin(profile) ? "4" : "3"}
                         className="px-6 py-8 text-center text-gray-500"
                       >
                         No users found
@@ -161,14 +165,16 @@ const AllUsers = () => {
                         </td>
 
                         <td className="px-6 py-4">
-                          <button
-                            onClick={() =>
-                              navigate(`/assets?userId=${user.id}`)
-                            }
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
-                          >
-                            View Assets
-                          </button>
+                          {isAdmin(profile) && (
+                            <button
+                              onClick={() =>
+                                navigate(`/assets?userId=${user.id}`)
+                              }
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+                            >
+                              View Assets
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
+import { UserContext } from "../UserContext";
 import {
   Search,
   Filter,
@@ -30,6 +31,7 @@ const AssetsPage = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const { profile } = useContext(UserContext);
 
   /* ---------------- GET USER ID FROM URL ---------------- */
   const params = new URLSearchParams(location.search);
@@ -115,6 +117,7 @@ const AssetsPage = () => {
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           navigate={navigate}
+          userProfile={profile}
         />
         <main className="flex-1 flex items-center justify-center p-8">
           <div className="text-center">
@@ -135,17 +138,18 @@ const AssetsPage = () => {
   /* ---------------- ERROR STATE ---------------- */
   if (error) {
     return (
-      <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           navigate={navigate}
+          userProfile={profile}
         />
         <main className="flex-1 p-8">
           <div className="max-w-2xl mx-auto">
-            <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl border border-red-100 p-8 shadow-lg">
+            <div className="bg-linear-to-r from-red-50 to-pink-50 rounded-2xl border border-red-100 p-8 shadow-lg">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-red-100 rounded-xl">
                   <AlertCircle className="w-8 h-8 text-red-600" />
@@ -158,7 +162,7 @@ const AssetsPage = () => {
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={fetchAssets}
-                  className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+                  className="px-5 py-2.5 bg-linear-to-r from-red-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Try Again
@@ -179,13 +183,14 @@ const AssetsPage = () => {
 
   /* ---------------- MAIN UI ---------------- */
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         navigate={navigate}
+        userProfile={profile}
       />
 
       <main className="flex-1 p-6 lg:p-8">
@@ -237,7 +242,7 @@ const AssetsPage = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6 shadow-sm">
+          <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-600">Active Assets</p>
@@ -250,7 +255,7 @@ const AssetsPage = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 p-6 shadow-sm">
+          <div className="bg-linear-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-amber-600">Assigned Assets</p>
@@ -263,7 +268,7 @@ const AssetsPage = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200 p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Assets</p>
@@ -280,7 +285,7 @@ const AssetsPage = () => {
         {/* Main Content */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           {/* Table Header */}
-          <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+          <div className="px-6 py-4 border-b border-gray-100 bg-linear-to-r from-gray-50 to-white">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-800">Asset List</h2>
               <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -358,7 +363,7 @@ const AssetsPage = () => {
                     >
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-4">
-                          <div className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
+                          <div className="p-3 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl">
                             <Package className="w-6 h-6 text-blue-600" />
                           </div>
                           <div>
@@ -410,7 +415,7 @@ const AssetsPage = () => {
                       <td className="py-4 px-6">
                         {asset.assigned_user ? (
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-semibold">
+                            <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-semibold">
                               {asset.assigned_user.first_name?.[0]}{asset.assigned_user.last_name?.[0]}
                             </div>
                             <div>

@@ -126,6 +126,7 @@ const AssetManagementDashboard = () => {
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         navigate={navigate}
+        userProfile={currentUserProfile}
       />
       <div className="flex-1 overflow-auto">
         <header className="bg-white shadow-sm border-b border-gray-200">

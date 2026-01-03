@@ -19,7 +19,7 @@ import Sidebar from "../components/Sidebar";
 const AddAssetPage = () => {
   const navigate = useNavigate();
   const formRef = useRef(null);
-  const { users, loading: usersLoading } = useContext(UserContext);
+  const { users, loading: usersLoading, profile } = useContext(UserContext);
   const [formData, setFormData] = useState({
     name: "",
     tag: "",
@@ -171,6 +171,7 @@ const AddAssetPage = () => {
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           navigate={navigate}
+          userProfile={profile}
         />
         {/* <div className="py-8"> */}
           <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">

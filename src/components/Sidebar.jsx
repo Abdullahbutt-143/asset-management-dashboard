@@ -5,16 +5,25 @@ import {
   CubeIcon,
   PlusIcon,
 } from "@heroicons/react/24/outline";
+import { isAdmin } from "../utils/adminUtils";
 
-const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen, navigate }) => {
-  const menuItems = [
-    { key: "dashboard", label: "dashboard", icon: CubeIcon, path: "/" },
-    { key: "assets", label: "assets", icon: ComputerDesktopIcon, path: "/assets" },
-    { key: "users", label: "users", icon: UserGroupIcon, path: "/users" },
-    { key: "requests", label: "requests", icon: ClipboardDocumentCheckIcon, path: "/assets-request" },
-    { key: "requested-assets", label: "requested-assets", icon: ComputerDesktopIcon, path: "/get-assets" },
-    { key: "add-asset", label: "add-asset", icon: PlusIcon, path: "/add-asset" },
+const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen, navigate, userProfile }) => {
+  const allMenuItems = [
+    { key: "dashboard", label: "dashboard", icon: CubeIcon, path: "/", adminOnly: false },
+    { key: "assets", label: "assets", icon: ComputerDesktopIcon, path: "/assets", adminOnly: true },
+    { key: "users", label: "users", icon: UserGroupIcon, path: "/users", adminOnly: false },
+    { key: "requests", label: "requests", icon: ClipboardDocumentCheckIcon, path: "/assets-request", adminOnly: false },
+    { key: "requested-assets", label: "requested-assets", icon: ComputerDesktopIcon, path: "/get-assets", adminOnly: false },
+    { key: "add-asset", label: "add-asset", icon: PlusIcon, path: "/add-asset", adminOnly: false },
   ];
+
+  // Filter menu items based on admin status
+  const menuItems = allMenuItems.filter(item => {
+    if (item.adminOnly) {
+      return isAdmin(userProfile);
+    }
+    return true;
+  });
 
   return (
     <div
