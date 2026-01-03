@@ -13,6 +13,7 @@ import { useAssets } from "./hooks/useAssets";
 import { useRequests } from "./hooks/useRequests";
 import { supabase } from "./supabaseClient";
 import Sidebar from "./components/Sidebar";
+import { isAdmin } from "./utils/adminUtils";
 
 const AssetManagementDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -43,7 +44,7 @@ const AssetManagementDashboard = () => {
       if (user?.id) {
         const { data, error } = await supabase
           .from("profiles")
-          .select("first_name, last_name, email")
+          .select("first_name, last_name, email, is_staff")
           .eq("id", user.id)
           .single();
 
@@ -286,79 +287,89 @@ const AssetManagementDashboard = () => {
           </div>
 
           {/* Recent Assets + Quick Actions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  Recent Assets
-                </h3>
-                <button
-                  onClick={() => navigate("/assets")}
-                  className="text-blue-600 text-sm font-medium hover:text-blue-700 flex items-center gap-1"
-                >
-                  View All
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+          <div
+            className={`grid gap-6 ${
+              isAdmin(currentUserProfile) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
+            }`}
+          >
+            {/* Recent Assets (ADMIN ONLY) */}
+            {isAdmin(currentUserProfile) && (
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Recent Assets
+                  </h3>
+                  <button
+                    onClick={() => navigate("/assets")}
+                    className="text-blue-600 text-sm font-medium hover:text-blue-700 flex items-center gap-1"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <div className="space-y-4">
-                {assetsLoading ? (
-                  <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="text-gray-500 mt-2">Loading assets...</p>
-                  </div>
-                ) : recentAssets.length > 0 ? (
-                  recentAssets.map((asset) => (
-                    <div
-                      key={asset.id}
-                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                    View All
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <ComputerDesktopIcon className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-800">
-                            {asset.name}
-                          </h4>
-                          <p className="text-sm text-gray-600">{asset.user}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            asset.status === "Assigned"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {asset.status}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          {asset.date}
-                        </span>
-                      </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {assetsLoading ? (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                      <p className="text-gray-500 mt-2">Loading assets...</p>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4 text-gray-500">
-                    <ComputerDesktopIcon className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                    No assets found
-                  </div>
-                )}
+                  ) : recentAssets.length > 0 ? (
+                    recentAssets.map((asset) => (
+                      <div
+                        key={asset.id}
+                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <ComputerDesktopIcon className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-800">
+                              {asset.name}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {asset.user}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              asset.status === "Assigned"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {asset.status}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            {asset.date}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-gray-500">
+                      <ComputerDesktopIcon className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                      No assets found
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Quick Actions */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
