@@ -13,7 +13,6 @@ const AllUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("users");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
   const { authLoading, profile } = useContext(UserContext);
   const navigate = useNavigate();
 
