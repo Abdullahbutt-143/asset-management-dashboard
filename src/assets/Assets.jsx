@@ -41,6 +41,9 @@ const AssetsPage = () => {
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const [assetToRemove, setAssetToRemove] = useState(null);
   const [removeLoading, setRemoveLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [assetToDelete, setAssetToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -220,6 +223,46 @@ const AssetsPage = () => {
       console.error("Error removing assignment:", err);
     } finally {
       setRemoveLoading(false);
+    }
+  };
+
+  /* ---------------- DELETE ASSET (ADMIN ONLY) ---------------- */
+  const handleDeleteAsset = async () => {
+    if (!assetToDelete) return;
+
+    setDeleteLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from("assets")
+        .delete()
+        .eq("id", assetToDelete.id);
+
+      if (error) throw error;
+
+      // Update local state
+      const updatedAssets = assets.filter((asset) => asset.id !== assetToDelete.id);
+
+      setAssets(updatedAssets);
+      setFilteredAssets(updatedAssets);
+
+      // Update stats
+      const activeCount = updatedAssets.filter((a) => a.is_active).length || 0;
+      const inactiveCount = updatedAssets.length - activeCount;
+      const assignedCount = updatedAssets.filter((a) => a.assigned_to).length || 0;
+
+      setStats({
+        active: activeCount,
+        inactive: inactiveCount,
+        assigned: assignedCount,
+      });
+
+      setShowDeleteConfirm(false);
+      setAssetToDelete(null);
+    } catch (err) {
+      console.error("Error deleting asset:", err);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -592,6 +635,18 @@ const AssetsPage = () => {
                                   Remove
                                 </button>
                               )}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setAssetToDelete(asset);
+                                  setShowDeleteConfirm(true);
+                                }}
+                                className="px-3 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1"
+                                title="Delete asset permanently"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Delete
+                              </button>
                             </>
                           )}
                           <button 
@@ -811,6 +866,69 @@ const AssetsPage = () => {
                     <>
                       <Trash2 className="w-4 h-4" />
                       Remove Assignment
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Asset Confirmation Modal */}
+        {showDeleteConfirm && isAdmin(profile) && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+              {/* Modal Header */}
+              <div className="px-6 py-4 border-b border-gray-100">
+                <h3 className="text-lg font-semibold text-red-600">
+                  Delete Asset
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">{assetToDelete?.name}</p>
+              </div>
+
+              {/* Modal Body */}
+              <div className="px-6 py-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-red-50 rounded-lg">
+                    <AlertCircle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-900 font-medium">
+                      Permanently delete <span className="text-red-600">{assetToDelete?.name}</span>?
+                    </p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      This action cannot be undone. The asset and all associated data will be permanently deleted from the system.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setAssetToDelete(null);
+                  }}
+                  disabled={deleteLoading}
+                  className="flex-1 px-4 py-2 text-gray-700 font-medium bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAsset}
+                  disabled={deleteLoading}
+                  className="flex-1 px-4 py-2 text-white font-medium bg-linear-to-r from-red-600 to-red-700 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {deleteLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Delete Asset
                     </>
                   )}
                 </button>
