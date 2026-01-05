@@ -1,0 +1,12 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#4F46E5" stroke="#3B82F6" stroke-width="5"/>
+
+  <!-- Abstract asset icon (3 stacked boxes) -->
+  <rect x="60" y="50" width="80" height="20" fill="#60A5FA" rx="3"/>
+  <rect x="60" y="80" width="80" height="20" fill="#3B82F6" rx="3"/>
+  <rect x="60" y="110" width="80" height="20" fill="#2563EB" rx="3"/>
+
+  <!-- Company initials "JA" -->
+  <text x="100" y="170" font-size="32" font-family="Arial, sans-serif" fill="#FFFFFF" text-anchor="middle" font-weight="bold">JA</text>
+</svg>
