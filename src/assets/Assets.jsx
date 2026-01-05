@@ -19,7 +19,8 @@ import {
   RefreshCw,
   AlertCircle,
   X,
-  UserPlus
+  UserPlus,
+  Trash2
 } from "lucide-react";
 
 const AssetsPage = () => {
@@ -37,6 +38,9 @@ const AssetsPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [assignLoading, setAssignLoading] = useState(false);
   const [assignError, setAssignError] = useState(null);
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const [assetToRemove, setAssetToRemove] = useState(null);
+  const [removeLoading, setRemoveLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -172,6 +176,50 @@ const AssetsPage = () => {
       setAssignError(err.message || "Failed to assign asset");
     } finally {
       setAssignLoading(false);
+    }
+  };
+
+  /* ---------------- REMOVE/UNASSIGN ASSET FROM USER ---------------- */
+  const handleRemoveAssignment = async () => {
+    if (!assetToRemove) return;
+
+    setRemoveLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from("assets")
+        .update({ assigned_to: null })
+        .eq("id", assetToRemove.id);
+
+      if (error) throw error;
+
+      // Update local state
+      const updatedAssets = assets.map((asset) =>
+        asset.id === assetToRemove.id
+          ? {
+              ...asset,
+              assigned_to: null,
+              assigned_user: null,
+            }
+          : asset
+      );
+
+      setAssets(updatedAssets);
+      setFilteredAssets(updatedAssets);
+
+      // Update stats
+      const assignedCount = updatedAssets.filter((a) => a.assigned_to).length || 0;
+      setStats((prevStats) => ({
+        ...prevStats,
+        assigned: assignedCount,
+      }));
+
+      setShowRemoveConfirm(false);
+      setAssetToRemove(null);
+    } catch (err) {
+      console.error("Error removing assignment:", err);
+    } finally {
+      setRemoveLoading(false);
     }
   };
 
@@ -520,16 +568,31 @@ const AssetsPage = () => {
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
                           {isAdmin(profile) && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openAssignModal(asset);
-                              }}
-                              className="px-3 py-1.5 text-sm font-medium bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1"
-                            >
-                              <UserPlus className="w-4 h-4" />
-                              {asset.assigned_to ? "Reassign" : "Assign"}
-                            </button>
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openAssignModal(asset);
+                                }}
+                                className="px-3 py-1.5 text-sm font-medium bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1"
+                              >
+                                <UserPlus className="w-4 h-4" />
+                                {asset.assigned_to ? "Reassign" : "Assign"}
+                              </button>
+                              {asset.assigned_to && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setAssetToRemove(asset);
+                                    setShowRemoveConfirm(true);
+                                  }}
+                                  className="px-3 py-1.5 text-sm font-medium bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-1"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  Remove
+                                </button>
+                              )}
+                            </>
                           )}
                           <button 
                             onClick={(e) => {
@@ -678,6 +741,76 @@ const AssetsPage = () => {
                     <>
                       <UserPlus className="w-4 h-4" />
                       Assign Asset
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Remove Assignment Confirmation Modal */}
+        {showRemoveConfirm && isAdmin(profile) && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+              {/* Modal Header */}
+              <div className="px-6 py-4 border-b border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Remove Assignment
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">{assetToRemove?.name}</p>
+              </div>
+
+              {/* Modal Body */}
+              <div className="px-6 py-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-red-50 rounded-lg">
+                    <AlertCircle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-900 font-medium">
+                      Remove{" "}
+                      <span className="text-red-600">
+                        {assetToRemove?.assigned_user?.first_name}{" "}
+                        {assetToRemove?.assigned_user?.last_name}
+                      </span>
+                      ?
+                    </p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      This asset will be marked as unassigned and will no longer be
+                      associated with the current user. This action can be undone by
+                      reassigning it to another user.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+                <button
+                  onClick={() => {
+                    setShowRemoveConfirm(false);
+                    setAssetToRemove(null);
+                  }}
+                  disabled={removeLoading}
+                  className="flex-1 px-4 py-2 text-gray-700 font-medium bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRemoveAssignment}
+                  disabled={removeLoading}
+                  className="flex-1 px-4 py-2 text-white font-medium bg-linear-to-r from-red-500 to-red-600 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {removeLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Removing...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Remove Assignment
                     </>
                   )}
                 </button>
