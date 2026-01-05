@@ -17,7 +17,9 @@ import {
   Hash,
   ChevronRight,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  X,
+  UserPlus
 } from "lucide-react";
 
 const AssetsPage = () => {
@@ -29,6 +31,12 @@ const AssetsPage = () => {
   const [activeTab, setActiveTab] = useState("assets");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [stats, setStats] = useState({ active: 0, inactive: 0, assigned: 0 });
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [assignedUsers, setAssignedUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assignError, setAssignError] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -96,6 +104,76 @@ const AssetsPage = () => {
   useEffect(() => {
     fetchAssets();
   }, [userId]);
+
+  /* ---------------- FETCH ALL USERS FOR ASSIGNMENT (ADMIN ONLY) ---------------- */
+  const fetchUsersForAssignment = async () => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, email, first_name, last_name, is_active")
+      .order("first_name", { ascending: true });
+
+    if (!error) {
+      setAssignedUsers(data || []);
+    }
+  };
+
+  /* ---------------- OPEN ASSIGN MODAL AND FETCH USERS ---------------- */
+  const openAssignModal = async (asset) => {
+    setSelectedAsset(asset);
+    setSelectedUser(asset.assigned_to || null);
+    setAssignError(null);
+    setShowAssignModal(true);
+    await fetchUsersForAssignment();
+  };
+
+  /* ---------------- ASSIGN/REASSIGN ASSET TO USER ---------------- */
+  const handleAssignAsset = async () => {
+    if (!selectedAsset || !selectedUser) {
+      setAssignError("Please select a user to assign the asset");
+      return;
+    }
+
+    setAssignLoading(true);
+    setAssignError(null);
+
+    try {
+      const { error } = await supabase
+        .from("assets")
+        .update({ assigned_to: selectedUser })
+        .eq("id", selectedAsset.id);
+
+      if (error) throw error;
+
+      // Update local state
+      const updatedAssets = assets.map((asset) =>
+        asset.id === selectedAsset.id
+          ? {
+              ...asset,
+              assigned_to: selectedUser,
+              assigned_user: assignedUsers.find((u) => u.id === selectedUser),
+            }
+          : asset
+      );
+
+      setAssets(updatedAssets);
+      setFilteredAssets(updatedAssets);
+
+      // Update stats
+      const assignedCount = updatedAssets.filter((a) => a.assigned_to).length || 0;
+      setStats((prevStats) => ({
+        ...prevStats,
+        assigned: assignedCount,
+      }));
+
+      setShowAssignModal(false);
+      setSelectedAsset(null);
+      setSelectedUser(null);
+    } catch (err) {
+      setAssignError(err.message || "Failed to assign asset");
+    } finally {
+      setAssignLoading(false);
+    }
+  };
 
   /* ---------------- SEARCH FILTER (UI ONLY) ---------------- */
   useEffect(() => {
@@ -440,9 +518,29 @@ const AssetsPage = () => {
                       </td>
                       
                       <td className="py-4 px-6">
-                        <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          {isAdmin(profile) && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openAssignModal(asset);
+                              }}
+                              className="px-3 py-1.5 text-sm font-medium bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1"
+                            >
+                              <UserPlus className="w-4 h-4" />
+                              {asset.assigned_to ? "Reassign" : "Assign"}
+                            </button>
+                          )}
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/assets/${asset.id}`);
+                            }}
+                            className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                          >
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -473,6 +571,120 @@ const AssetsPage = () => {
             </div>
           )}
         </div>
+
+        {/* Assign Asset Modal - Admin Only */}
+        {showAssignModal && isAdmin(profile) && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {selectedAsset?.assigned_to ? "Reassign Asset" : "Assign Asset"}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">{selectedAsset?.name}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowAssignModal(false);
+                    setSelectedAsset(null);
+                    setSelectedUser(null);
+                    setAssignError(null);
+                  }}
+                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="px-6 py-4">
+                {assignError && (
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-700">{assignError}</p>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select User
+                  </label>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {assignedUsers.map((user) => (
+                      <button
+                        key={user.id}
+                        onClick={() => setSelectedUser(user.id)}
+                        className={`w-full p-3 text-left rounded-lg border-2 transition-colors ${
+                          selectedUser === user.id
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        } ${!user.is_active ? "opacity-50" : ""}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                            {user.first_name?.[0]}{user.last_name?.[0]}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {user.first_name} {user.last_name}
+                            </p>
+                            <p className="text-xs text-gray-500">{user.email}</p>
+                          </div>
+                          {!user.is_active && (
+                            <span className="ml-auto text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                              Inactive
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedAsset?.assigned_to && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600">Current Assignment:</p>
+                    <p className="text-sm font-medium text-gray-900 mt-1">
+                      {selectedAsset.assigned_user?.first_name} {selectedAsset.assigned_user?.last_name}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+                <button
+                  onClick={() => {
+                    setShowAssignModal(false);
+                    setSelectedAsset(null);
+                    setSelectedUser(null);
+                    setAssignError(null);
+                  }}
+                  className="flex-1 px-4 py-2 text-gray-700 font-medium bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAssignAsset}
+                  disabled={assignLoading || !selectedUser}
+                  className="flex-1 px-4 py-2 text-white font-medium bg-linear-to-r from-blue-500 to-blue-600 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {assignLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Assigning...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4" />
+                      Assign Asset
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
