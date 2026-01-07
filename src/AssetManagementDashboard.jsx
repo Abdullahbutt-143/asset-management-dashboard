@@ -58,29 +58,19 @@ const AssetManagementDashboard = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!assetsLoading && !usersLoading && !requestsLoading) {
-      const assignedAssets = assets.filter(
-        (asset) => asset.assigned_to !== null
-      ).length;
-      const availableAssets = totalAssets - assignedAssets;
+    const assignedAssets = assets.filter(
+      (asset) => asset.assigned_to !== null
+    ).length;
+    const availableAssets = totalAssets - assignedAssets;
 
-      setStats({
-        totalUsers: users.length,
-        totalAssets: totalAssets,
-        activeRequests: activeRequests,
-        availableAssets: availableAssets,
-        assignedAssets: assignedAssets,
-      });
-    }
-  }, [
-    assetsLoading,
-    usersLoading,
-    requestsLoading,
-    assets,
-    totalAssets,
-    users,
-    activeRequests,
-  ]);
+    setStats({
+      totalUsers: users.length,
+      totalAssets: totalAssets,
+      activeRequests: activeRequests,
+      availableAssets: availableAssets,
+      assignedAssets: assignedAssets,
+    });
+  }, [assets, totalAssets, users, activeRequests]);
 
   const recentAssets = assets.slice(0, 4).map((asset) => ({
     id: asset.id,
