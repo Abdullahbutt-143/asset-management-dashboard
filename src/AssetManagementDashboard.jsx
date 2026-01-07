@@ -58,6 +58,11 @@ const AssetManagementDashboard = () => {
   }, [user]);
 
   useEffect(() => {
+    // Only update stats when all data is loaded
+    if (usersLoading || assetsLoading || requestsLoading) {
+      return;
+    }
+
     const assignedAssets = assets.filter(
       (asset) => asset.assigned_to !== null
     ).length;
@@ -70,7 +75,7 @@ const AssetManagementDashboard = () => {
       availableAssets: availableAssets,
       assignedAssets: assignedAssets,
     });
-  }, [assets, totalAssets, users, activeRequests]);
+  }, [assets, totalAssets, users, activeRequests, usersLoading, assetsLoading, requestsLoading]);
 
   const recentAssets = assets.slice(0, 4).map((asset) => ({
     id: asset.id,
@@ -119,9 +124,9 @@ const AssetManagementDashboard = () => {
         userProfile={currentUserProfile}
       />
       <div className="flex-1 overflow-auto">
-        <header className="bg-gradient-to-r from-white via-blue-50 to-white shadow-md border-b border-gray-200 backdrop-blur-sm">
+        <header className="bg-linear-to-r from-white via-blue-50 to-white shadow-md border-b border-gray-200 backdrop-blur-sm">
           <div className="flex items-center justify-between px-6 py-5">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard</h2>
+            <h2 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard</h2>
             <div className="flex items-center space-x-4">
               {(() => {
                 const handleLogout = async () => {
@@ -132,7 +137,7 @@ const AssetManagementDashboard = () => {
                 if (user) {
                   return (
                     <div className="flex items-center space-x-3 animate-fadeIn">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                         {getUserInitials()}
                       </div>
                       <span className="text-gray-700 font-medium hidden sm:inline">
@@ -150,7 +155,7 @@ const AssetManagementDashboard = () => {
                   return (
                     <button
                       onClick={() => navigate("/login")}
-                      className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
+                      className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-linear-to-r from-blue-500 to-purple-600 text-white font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
                     >
                       <div className="flex items-center justify-center">
                         <svg
@@ -180,20 +185,20 @@ const AssetManagementDashboard = () => {
         </header>
 
         {/* Dashboard Content */}
-        <main className="p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+        <main className="p-8 bg-linear-to-br from-gray-50 via-white to-gray-50">
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Total Users */}
             <div className="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative flex items-center justify-between">
                 <div>
                   <p className="text-gray-500 text-sm font-medium">Total Users</p>
                   <h3 className="text-3xl font-bold text-gray-900 mt-2">
                     {usersLoading ? (
-                      <div className="h-8 w-20 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
+                      <div className="h-8 w-20 bg-linear-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
                     ) : (
-                      <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent animate-fadeIn">
+                      <span className="bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent animate-fadeIn">
                         {stats.totalUsers.toLocaleString()}
                       </span>
                     )}
@@ -202,7 +207,7 @@ const AssetManagementDashboard = () => {
                     {usersLoading ? "Loading..." : "Active team members"}
                   </p>
                 </div>
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
+                <div className="w-16 h-16 bg-linear-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <UserGroupIcon className="w-8 h-8 text-blue-600" />
                 </div>
               </div>
@@ -210,15 +215,15 @@ const AssetManagementDashboard = () => {
 
             {/* Total Assets */}
             <div className="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:border-green-200 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative flex items-center justify-between">
                 <div>
                   <p className="text-gray-500 text-sm font-medium">Total Assets</p>
                   <h3 className="text-3xl font-bold text-gray-900 mt-2">
                     {assetsLoading ? (
-                      <div className="h-8 w-20 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
+                      <div className="h-8 w-20 bg-linear-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
                     ) : (
-                      <span className="bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent animate-fadeIn">
+                      <span className="bg-linear-to-r from-green-600 to-green-700 bg-clip-text text-transparent animate-fadeIn">
                         {stats.totalAssets.toLocaleString()}
                       </span>
                     )}
@@ -232,7 +237,7 @@ const AssetManagementDashboard = () => {
                     </span>
                   </div>
                 </div>
-                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
+                <div className="w-16 h-16 bg-linear-to-br from-green-100 to-green-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <ComputerDesktopIcon className="w-8 h-8 text-green-600" />
                 </div>
               </div>
@@ -240,15 +245,15 @@ const AssetManagementDashboard = () => {
 
             {/* Active Requests */}
             <div className="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:border-orange-200 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-orange-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative flex items-center justify-between">
                 <div>
                   <p className="text-gray-500 text-sm font-medium">Active Requests</p>
                   <h3 className="text-3xl font-bold text-gray-900 mt-2">
                     {requestsLoading ? (
-                      <div className="h-8 w-20 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
+                      <div className="h-8 w-20 bg-linear-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
                     ) : (
-                      <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent animate-fadeIn">
+                      <span className="bg-linear-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent animate-fadeIn">
                         {stats.activeRequests.toLocaleString()}
                       </span>
                     )}
@@ -257,7 +262,7 @@ const AssetManagementDashboard = () => {
                     {requestsLoading ? "Loading..." : "Pending approvals"}
                   </p>
                 </div>
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
+                <div className="w-16 h-16 bg-linear-to-br from-orange-100 to-orange-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <ClipboardDocumentCheckIcon className="w-8 h-8 text-orange-600" />
                 </div>
               </div>
@@ -265,15 +270,15 @@ const AssetManagementDashboard = () => {
 
             {/* Available Assets */}
             <div className="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:border-purple-200 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative flex items-center justify-between">
                 <div>
                   <p className="text-gray-500 text-sm font-medium">Available Assets</p>
                   <h3 className="text-3xl font-bold text-gray-900 mt-2">
                     {assetsLoading ? (
-                      <div className="h-8 w-20 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
+                      <div className="h-8 w-20 bg-linear-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
                     ) : (
-                      <span className="bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent animate-fadeIn">
+                      <span className="bg-linear-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent animate-fadeIn">
                         {stats.availableAssets.toLocaleString()}
                       </span>
                     )}
@@ -282,7 +287,7 @@ const AssetManagementDashboard = () => {
                     {assetsLoading ? "Loading..." : "Ready for assignment"}
                   </p>
                 </div>
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
+                <div className="w-16 h-16 bg-linear-to-br from-purple-100 to-purple-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <CubeIcon className="w-8 h-8 text-purple-600" />
                 </div>
               </div>
@@ -337,7 +342,7 @@ const AssetManagementDashboard = () => {
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
                         <div className="flex items-center gap-3 flex-1">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg flex items-center justify-center group-hover:shadow-md transition-all duration-300">
+                          <div className="w-10 h-10 bg-linear-to-br from-blue-100 to-blue-50 rounded-lg flex items-center justify-center group-hover:shadow-md transition-all duration-300">
                             <ComputerDesktopIcon className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
@@ -384,9 +389,9 @@ const AssetManagementDashboard = () => {
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => navigate("/add-asset")}
-                  className="group p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 hover:border-blue-400 hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  className="group p-4 bg-linear-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 hover:border-blue-400 hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-200 to-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-all duration-300">
+                  <div className="w-12 h-12 bg-linear-to-br from-blue-200 to-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-all duration-300">
                     <PlusIcon className="w-6 h-6 text-blue-600" />
                   </div>
                   <span className="text-sm font-bold text-gray-800 group-hover:text-blue-700 transition-colors">
@@ -396,9 +401,9 @@ const AssetManagementDashboard = () => {
 
                 <button
                   onClick={() => navigate("/assets-request")}
-                  className="group p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 hover:border-green-400 hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  className="group p-4 bg-linear-to-br from-green-50 to-green-100 rounded-xl border border-green-200 hover:border-green-400 hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-200 to-green-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-all duration-300">
+                  <div className="w-12 h-12 bg-linear-to-br from-green-200 to-green-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-all duration-300">
                     <ClipboardDocumentCheckIcon className="w-6 h-6 text-green-600" />
                   </div>
                   <span className="text-sm font-bold text-gray-800 group-hover:text-green-700 transition-colors">
@@ -408,9 +413,9 @@ const AssetManagementDashboard = () => {
 
                 <button
                   onClick={() => navigate("/users")}
-                  className="group p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200 hover:border-purple-400 hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  className="group p-4 bg-linear-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200 hover:border-purple-400 hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-200 to-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-all duration-300">
+                  <div className="w-12 h-12 bg-linear-to-br from-purple-200 to-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-all duration-300">
                     <UserGroupIcon className="w-6 h-6 text-purple-600" />
                   </div>
                   <span className="text-sm font-bold text-gray-800 group-hover:text-purple-700 transition-colors">
@@ -420,9 +425,9 @@ const AssetManagementDashboard = () => {
 
                 <button
                   onClick={() => navigate("/get-assets")}
-                  className="group p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border border-orange-200 hover:border-orange-400 hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  className="group p-4 bg-linear-to-br from-orange-50 to-orange-100 rounded-xl border border-orange-200 hover:border-orange-400 hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-200 to-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-all duration-300">
+                  <div className="w-12 h-12 bg-linear-to-br from-orange-200 to-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-all duration-300">
                     <ComputerDesktopIcon className="w-6 h-6 text-orange-600" />
                   </div>
                   <span className="text-sm font-bold text-gray-800 group-hover:text-orange-700 transition-colors">
