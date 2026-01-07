@@ -1,9 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 import { useContext } from "react";
-
 export const UserContext = createContext();
-
 export const UserProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [profile, setProfile] = useState(null); 
@@ -89,7 +87,7 @@ export const UserProvider = ({ children }) => {
       value={{
         user,
         session,
-        profile, // ✅ EXPOSE PROFILE
+        profile, 
         users,
         loading,
         error,
