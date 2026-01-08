@@ -366,7 +366,7 @@ const AssetsPage = () => {
         userProfile={profile}
       />
 
-      <main className="flex-1 p-6 lg:p-8">
+      <main className="flex-1 min-w-0 p-6 lg:p-8">
         {/* Header Section */}
         <div className="mb-8">
           {userId && (
@@ -532,7 +532,7 @@ const AssetsPage = () => {
                     <tr 
                       key={asset.id} 
                       className="hover:bg-blue-50/30 transition-colors group cursor-pointer"
-                      onClick={() => navigate(`/assets/${asset.id}`)}
+                      // onClick={() => navigate(`/assets/${asset.id}`)}
                     >
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-4">
@@ -649,7 +649,7 @@ const AssetsPage = () => {
                               </button>
                             </>
                           )}
-                          <button 
+                          {/* <button 
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/assets/${asset.id}`);
@@ -657,7 +657,7 @@ const AssetsPage = () => {
                             className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
                           >
                             <ChevronRight className="w-5 h-5" />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>

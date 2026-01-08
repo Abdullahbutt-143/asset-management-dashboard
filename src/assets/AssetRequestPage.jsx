@@ -87,7 +87,7 @@ const AssetRequestPage = () => {
         navigate={navigate}
         userProfile={profile}
       />
-      <main className="flex-1">
+      <main className="flex-1 min-w-0">
         <PageHeader
           title="Request an Asset"
           subtitle="Submit a request for company assets you need"

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { UserContext } from "./UserContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   BellIcon,
   UserGroupIcon,
@@ -38,6 +38,22 @@ const AssetManagementDashboard = () => {
 
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Sync activeTab with current route
+  useEffect(() => {
+    const pathToTabMap = {
+      "/": "dashboard",
+      "/assets": "assets",
+      "/my-requests": "my-requests",
+      "/users": "users",
+      "/assets-request": "requests",
+      "/get-assets": "requested-assets",
+      "/add-asset": "add-asset",
+    };
+    const currentTab = pathToTabMap[location.pathname] || "dashboard";
+    setActiveTab(currentTab);
+  }, [location.pathname]);
 
   useEffect(() => {
     const fetchCurrentUserProfile = async () => {
