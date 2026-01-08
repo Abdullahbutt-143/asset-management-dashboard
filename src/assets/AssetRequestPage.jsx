@@ -154,8 +154,6 @@ const AssetRequestPage = () => {
               </div>
             </form>
           </div>
-
-          {/* Info box */}
           <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
             <h3 className="text-lg font-medium text-blue-900 mb-2">
               Request Process
@@ -172,5 +170,4 @@ const AssetRequestPage = () => {
     </div>
   );
 };
-
 export default AssetRequestPage;
