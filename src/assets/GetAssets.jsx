@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
 import { supabase } from "../supabaseClient";
@@ -8,16 +8,32 @@ import { isAdmin } from "../utils/adminUtils";
 
 const GetAssets = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("manage-requests");
+  const [activeTab, setActiveTab] = useState("requested-assets");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { profile } = useContext(UserContext);
   const [showModal, setShowModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [adminNote, setAdminNote] = useState("");
   const [actionType, setActionType] = useState("");
+
+  // Sync activeTab with current route
+  useEffect(() => {
+    const pathToTabMap = {
+      "/": "dashboard",
+      "/assets": "assets",
+      "/my-requests": "my-requests",
+      "/users": "users",
+      "/assets-request": "requests",
+      "/get-assets": "requested-assets",
+      "/add-asset": "add-asset",
+    };
+    const currentTab = pathToTabMap[location.pathname] || "requested-assets";
+    setActiveTab(currentTab);
+  }, [location.pathname]);
   const fetchRequests = async () => {
     try {
       setLoading(true);

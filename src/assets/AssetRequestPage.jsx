@@ -1,5 +1,5 @@
-import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useContext, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
@@ -8,6 +8,7 @@ import { UserContext } from "../UserContext";
 
 const AssetRequestPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { profile } = useContext(UserContext);
   const [formData, setFormData] = useState({
     reason: "",
@@ -16,8 +17,23 @@ const AssetRequestPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [activeTab, setActiveTab] = useState("request-asset");
+  const [activeTab, setActiveTab] = useState("requests");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Sync activeTab with current route
+  useEffect(() => {
+    const pathToTabMap = {
+      "/": "dashboard",
+      "/assets": "assets",
+      "/my-requests": "my-requests",
+      "/users": "users",
+      "/assets-request": "requests",
+      "/get-assets": "requested-assets",
+      "/add-asset": "add-asset",
+    };
+    const currentTab = pathToTabMap[location.pathname] || "requests";
+    setActiveTab(currentTab);
+  }, [location.pathname]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
