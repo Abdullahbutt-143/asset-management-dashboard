@@ -4,6 +4,8 @@ import {
   ClipboardDocumentCheckIcon,
   CubeIcon,
   PlusIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 import { isAdmin } from "../utils/adminUtils";
 
@@ -33,7 +35,7 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen, nav
       } bg-white shadow-lg transition-all duration-300`}
     >
       {/* Logo / Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
         <h1
           className={`text-2xl font-bold text-gray-800 ${
             !isSidebarOpen && "hidden"
@@ -44,9 +46,14 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen, nav
 
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="mt-3 p-2 rounded-lg hover:bg-gray-100"
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
+          title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
-          <CubeIcon className="w-6 h-6 text-gray-600" />
+          {isSidebarOpen ? (
+            <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+          ) : (
+            <ChevronRightIcon className="w-6 h-6 text-gray-600" />
+          )}
         </button>
       </div>
 
