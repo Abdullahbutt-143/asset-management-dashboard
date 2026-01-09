@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Suspense } from "react-router-dom";
-import { lazy } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { UserProvider } from "./UserContext";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
