@@ -22,7 +22,6 @@ export default function Login() {
     navigate("/");
     }
   });
-  console.log(error);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -22,7 +22,6 @@ export const useSupabase = (
 
     await onRequestService(...params)
       .then((response) => {
-        console.log(response);
         setData(response);
 
         setError(null);
