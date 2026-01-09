@@ -167,8 +167,6 @@ const AddAssetPage = () => {
                   Back to Assets
                 </button>
               </div>
-
-              {/* Form Card */}
               <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                 <div className="p-8">
                   <form
@@ -176,7 +174,6 @@ const AddAssetPage = () => {
                     onSubmit={handleSubmit}
                     className="space-y-8"
                   >
-                    {/* Asset Details Section */}
                     <div className="space-y-6">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-100 rounded-lg">
@@ -416,7 +413,6 @@ const AddAssetPage = () => {
                         )}
                       </div>
                     </div>
-
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200">
                       <button
@@ -436,7 +432,6 @@ const AddAssetPage = () => {
                           </>
                         )}
                       </button>
-
                       <button
                         type="button"
                         onClick={handleReset}
@@ -447,7 +442,6 @@ const AddAssetPage = () => {
                       </button>
                     </div>
                   </form>
-
                   {/* Form Tips */}
                   <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100">
                     <h3 className="text-sm font-semibold text-blue-900 mb-2">
@@ -471,7 +465,6 @@ const AddAssetPage = () => {
                   </div>
                 </div>
               </div>
-
               {/* Quick Stats */}
               <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
@@ -496,5 +489,4 @@ const AddAssetPage = () => {
     </div>
   );
 };
-
 export default AddAssetPage;
