@@ -9,7 +9,6 @@ class Auth {
              email,
              password,
            });
-       
         if (error) {
            throw new Error(error.message);
         };
@@ -20,9 +19,6 @@ class Auth {
       }
     });
   };
- 
 }
-
 const AuthService = new Auth();
-
 export { AuthService };
