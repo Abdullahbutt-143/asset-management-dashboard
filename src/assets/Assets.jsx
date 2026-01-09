@@ -328,7 +328,13 @@ const AssetsPage = () => {
         userProfile={profile}
       />
 
-      <main className="flex-1 min-w-0 p-6 lg:p-8">
+      <main className="flex-1 min-w-0">
+        <PageHeader 
+          title={userId ? "User Assets" : "Asset Inventory"} 
+          subtitle={userId ? "Assets assigned to the selected user" : "Manage and track all company assets in one place"}
+        />
+
+        <div className="p-6 lg:p-8">
         {/* Header Section */}
         <div className="mb-8">
           {userId && (
@@ -342,17 +348,6 @@ const AssetsPage = () => {
           )}
 
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
-                {userId ? "User Assets" : "Asset Inventory"}
-              </h1>
-              <p className="text-gray-500 mt-2 max-w-2xl">
-                {userId
-                  ? "Assets assigned to the selected user"
-                  : "Manage and track all company assets in one place"}
-              </p>
-            </div>
-
             <div className="flex items-center gap-4">
               <button
                 onClick={triggerFetchAssets}
@@ -889,6 +884,7 @@ const AssetsPage = () => {
             </div>
           </div>
         )}
+        </div>
       </main>
     </div>
   );

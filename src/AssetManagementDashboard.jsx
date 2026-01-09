@@ -13,6 +13,7 @@ import { useAssets } from "./hooks/useAssets";
 import { useRequests } from "./hooks/useRequests";
 import { supabase } from "./supabaseClient";
 import Sidebar from "./components/Sidebar";
+import PageHeader from "./components/PageHeader";
 import { isAdmin } from "./utils/adminUtils";
 
 const AssetManagementDashboard = () => {
@@ -140,65 +141,10 @@ const AssetManagementDashboard = () => {
         userProfile={currentUserProfile}
       />
       <div className="flex-1 overflow-auto">
-        <header className="bg-linear-to-r from-white via-blue-50 to-white shadow-md border-b border-gray-200 backdrop-blur-sm">
-          <div className="flex items-center justify-between px-6 py-5">
-            <h2 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard</h2>
-            <div className="flex items-center space-x-4">
-              {(() => {
-                const handleLogout = async () => {
-                  await logout();
-                  navigate("/login");
-                };
-
-                if (user) {
-                  return (
-                    <div className="flex items-center space-x-3 animate-fadeIn">
-                      <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                        {getUserInitials()}
-                      </div>
-                      <span className="text-gray-700 font-medium hidden sm:inline">
-                        {getUserDisplayName()}
-                      </span>
-                      <button
-                        onClick={handleLogout}
-                        className="ml-4 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-300 transform hover:scale-105 active:scale-95"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  );
-                } else {
-                  return (
-                    <button
-                      onClick={() => navigate("/login")}
-                      className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-linear-to-r from-blue-500 to-purple-600 text-white font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
-                    >
-                      <div className="flex items-center justify-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-5 h-5"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.75 9A3.75 3.75 0 1 1 12 5.25 3.75 3.75 0 0 1 15.75 9Zm0 0a6.75 6.75 0 0 1-6.75 6.75h-.75a6.75 6.75 0 0 1-6.75-6.75A6.75 6.75 0 0 1 8.25 2.25h.75a6.75 6.75 0 0 1 6.75 6.75Z"
-                          />
-                        </svg>
-                      </div>
-                      <span className="font-medium text-sm">
-                        Login
-                      </span>
-                    </button>
-                  );
-                }
-              })()}
-            </div>
-          </div>
-        </header>
+        <PageHeader 
+          title="Dashboard" 
+          subtitle="Overview of your asset management system"
+        />
 
         {/* Dashboard Content */}
         <main className="p-8 bg-linear-to-br from-gray-50 via-white to-gray-50">
