@@ -4,33 +4,39 @@ import { supabase } from "./supabaseClient";
 import { toast } from "react-toastify";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { Package } from "lucide-react";
+import { AuthService } from "./supabase/authentication/Auth";
+import { useSupabase } from "./supabase/hooks/useSupabase";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const { data, isLoading:loading, onRequest:onLogin,error, setError } = useSupabase({
+    onRequestService: AuthService.login,
+    onError: (error) => {
+      toast.error(error || 'Error logging in');
+    },
+    onSuccess:()=>{
+    toast.success("Login successful!");
+    navigate("/");
+    }
+  });
+  console.log(error);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    await onLogin({ email, password });
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    // if (error) {
+    //   toast.error(error.message);
+    //   setLoading(false);
+    //   return;
+    // }
 
-    if (error) {
-      toast.error(error.message);
-      setLoading(false);
-      return;
-    }
-
-    toast.success("Login successful!");
-    setLoading(false);
-    navigate("/");
+    // toast.success("Login successful!");
+    // setLoading(false);
+    // navigate("/");
   };
 
   return (
@@ -63,16 +69,16 @@ export default function Login() {
             Welcome Back
           </h2>
 
-          {error && (
+          {/* {error && (
             <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 text-red-200 rounded-xl flex items-start gap-3">
               <div className="mt-0.5">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
-              <p className="text-sm">{error}</p>
+              <p className="text-sm">{error?.message }</p>
             </div>
-          )}
+          )} */}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email field */}
