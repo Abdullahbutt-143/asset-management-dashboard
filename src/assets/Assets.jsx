@@ -649,15 +649,6 @@ const AssetsPage = () => {
                               </button>
                             </>
                           )}
-                          {/* <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/assets/${asset.id}`);
-                            }}
-                            className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
-                          >
-                            <ChevronRight className="w-5 h-5" />
-                          </button> */}
                         </div>
                       </td>
                     </tr>
