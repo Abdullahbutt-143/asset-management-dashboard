@@ -5,6 +5,7 @@ import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "../UserContext";
 import { isAdmin } from "../utils/adminUtils";
+import { useSupabase } from "../supabase/hooks/useSupabase";
 import {
   Search,
   Filter,
@@ -27,8 +28,6 @@ const AssetsPage = () => {
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("assets");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [stats, setStats] = useState({ active: 0, inactive: 0, assigned: 0 });
@@ -53,11 +52,8 @@ const AssetsPage = () => {
   const params = new URLSearchParams(location.search);
   const userId = params.get("userId");
 
-  /* ---------------- FETCH ASSETS ---------------- */
-  const fetchAssets = async () => {
-    setLoading(true);
-    setError(null);
-
+  /* ---------------- FETCH ASSETS SERVICE ---------------- */
+  const fetchAssetsService = async () => {
     let query = supabase
       .from("assets")
       .select(`
@@ -81,32 +77,38 @@ const AssetsPage = () => {
     if (userId) {
       query = query.eq("assigned_to", userId);
     } else if (!isAdmin(profile)) {
-      // If user is not admin and no userId param, show only their own assets
       query = query.eq("assigned_to", profile?.id);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      setError(error.message);
-    } else {
-      setAssets(data || []);
-      setFilteredAssets(data || []);
+      throw new Error(error.message);
+    }
+
+    return data || [];
+  };
+
+  const { isLoading: loading, error, onRequest: fetchAssets } = useSupabase({
+    onRequestService: fetchAssetsService,
+    onSuccess: (data) => {
+      setAssets(data);
+      setFilteredAssets(data);
       
-      // Calculate stats
-      const activeCount = data?.filter(a => a.is_active).length || 0;
-      const inactiveCount = data?.length - activeCount;
-      const assignedCount = data?.filter(a => a.assigned_to).length || 0;
+      const activeCount = data.filter(a => a.is_active).length || 0;
+      const inactiveCount = data.length - activeCount;
+      const assignedCount = data.filter(a => a.assigned_to).length || 0;
       
       setStats({
         active: activeCount,
         inactive: inactiveCount,
         assigned: assignedCount
       });
+    },
+    onError: (error) => {
+      console.error("Error fetching assets:", error);
     }
-
-    setLoading(false);
-  };
+  });
 
   useEffect(() => {
     fetchAssets();

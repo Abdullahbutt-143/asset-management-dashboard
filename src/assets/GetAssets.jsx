@@ -5,13 +5,12 @@ import Sidebar from "../components/Sidebar";
 import { supabase } from "../supabaseClient";
 import { UserContext } from "../UserContext";
 import { isAdmin } from "../utils/adminUtils";
+import { useSupabase } from "../supabase/hooks/useSupabase";
 
 const GetAssets = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("requested-assets");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { profile } = useContext(UserContext);
@@ -34,78 +33,74 @@ const GetAssets = () => {
     const currentTab = pathToTabMap[location.pathname] || "requested-assets";
     setActiveTab(currentTab);
   }, [location.pathname]);
-  const fetchRequests = async () => {
-    try {
-      setLoading(true);
-      const { data: requestsData, error: reqError } = await supabase
-        .from("asset_requests")
-        .select(
-          `
-          id,
-          reason,
-          quantity,
-          status,
-          created_at,
-          user_id,
-          assets (
-            id,
-            name,
-            tag,
-            serial
-          )
+
+  /* ---------------- FETCH REQUESTS SERVICE ---------------- */
+  const fetchRequestsService = async () => {
+    const { data: requestsData, error: reqError } = await supabase
+      .from("asset_requests")
+      .select(
         `
+        id,
+        reason,
+        quantity,
+        status,
+        created_at,
+        user_id,
+        assets (
+          id,
+          name,
+          tag,
+          serial
         )
-        .order("created_at", { ascending: false });
-      console.log(requestsData, reqError);
-      if (reqError) throw reqError;
+      `
+      )
+      .order("created_at", { ascending: false });
 
-      const userIds = [...new Set(requestsData.map((r) => r.user_id))];
+    if (reqError) throw reqError;
 
-      // 3️⃣ Fetch profiles
-      let profilesData = [];
-      if (userIds.length > 0) {
-        const { data: pData, error: profError } = await supabase
-          .from("profiles")
-          .select("id, first_name, last_name, email")
-          .in("id", userIds);
+    const userIds = [...new Set(requestsData.map((r) => r.user_id))];
 
-        if (profError) throw profError;
-        profilesData = pData || [];
-      }
+    let profilesData = [];
+    if (userIds.length > 0) {
+      const { data: pData, error: profError } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, email")
+        .in("id", userIds);
 
-      // 4️⃣ Map profiles
-      const profileMap = {};
-      profilesData.forEach((p) => {
-        profileMap[p.id] = p;
-      });
-
-      // 5️⃣ Merge data
-      const formatted = requestsData.map((req) => {
-        const profile = profileMap[req.user_id];
-
-        return {
-          ...req,
-          user_full_name: profile
-            ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim()
-            : "Unknown User",
-          user_email: profile?.email || "",
-          asset: req.assets
-            ? `${req.assets.name}${
-                req.assets.tag ? ` (${req.assets.tag})` : ""
-              }`
-            : "No asset assigned",
-          asset_serial: req.assets?.serial || "—",
-        };
-      });
-
-      setRequests(formatted);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load asset requests.");
-    } finally {
-      setLoading(false);
+      if (profError) throw profError;
+      profilesData = pData || [];
     }
+
+    const profileMap = {};
+    profilesData.forEach((p) => {
+      profileMap[p.id] = p;
+    });
+
+    const formatted = requestsData.map((req) => {
+      const prof = profileMap[req.user_id];
+      return {
+        ...req,
+        user_full_name: prof
+          ? `${prof.first_name || ""} ${prof.last_name || ""}`.trim()
+          : "Unknown User",
+        user_email: prof?.email || "",
+        asset: req.assets
+          ? `${req.assets.name}${req.assets.tag ? ` (${req.assets.tag})` : ""}`
+          : "No asset assigned",
+        asset_serial: req.assets?.serial || "—",
+      };
+    });
+
+    return formatted;
   };
+
+  const { isLoading: loading, error, onRequest: fetchRequests } = useSupabase({
+    onRequestService: fetchRequestsService,
+    onSuccess: (data) => setRequests(data),
+    onError: (error) => {
+      console.error("Error fetching requests:", error);
+    }
+  });
 
   useEffect(() => {
     fetchRequests();

@@ -5,34 +5,35 @@ import PageHeader from "./components/PageHeader";
 import Sidebar from "./components/Sidebar";
 import { UserContext } from "./UserContext";
 import { isAdmin } from "./utils/adminUtils";
+import { useSupabase } from "./supabase/hooks/useSupabase";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("users");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { authLoading, profile } = useContext(UserContext);
   const navigate = useNavigate();
 
-  /* ---------------- FETCH USERS ---------------- */
-  const fetchUsers = async () => {
-    setLoading(true);
-    setError(null);
-
+  /* ---------------- FETCH USERS SERVICE ---------------- */
+  const fetchUsersService = async () => {
     const { data, error } = await supabase
       .from("profiles")
       .select("id, email, first_name, last_name, is_active");
 
     if (error) {
-      setError(error.message);
-    } else {
-      setUsers(data || []);
+      throw new Error(error.message);
     }
-
-    setLoading(false);
+    return data || [];
   };
+
+  const { data, isLoading: loading, error, onRequest: fetchUsers } = useSupabase({
+    onRequestService: fetchUsersService,
+    onSuccess: (data) => setUsers(data),
+    onError: (error) => {
+      console.error("Error fetching users:", error);
+    }
+  });
 
   useEffect(() => {
     if (!authLoading) {

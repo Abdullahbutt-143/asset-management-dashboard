@@ -5,6 +5,7 @@ import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
 import { supabase } from "../supabaseClient";
 import { UserContext } from "../UserContext";
+import { useSupabase } from "../supabase/hooks/useSupabase";
 
 const AssetRequestPage = () => {
   const navigate = useNavigate();
@@ -15,8 +16,6 @@ const AssetRequestPage = () => {
     quantity: 1,
   });
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
   const [activeTab, setActiveTab] = useState("requests");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -35,6 +34,45 @@ const AssetRequestPage = () => {
     setActiveTab(currentTab);
   }, [location.pathname]);
 
+  /* ---------------- SUBMIT REQUEST SERVICE ---------------- */
+  const submitRequestService = async () => {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("User not authenticated");
+    }
+
+    const { error } = await supabase.from("asset_requests").insert([
+      {
+        user_id: user.id,
+        reason: formData.reason,
+        quantity: formData.quantity,
+        status: "requested",
+        asset_id: null,
+      },
+    ]);
+
+    if (error) throw error;
+    return { success: true };
+  };
+
+  const { isLoading: loading, error, onRequest: submitRequest } = useSupabase({
+    onRequestService: submitRequestService,
+    onSuccess: () => {
+      toast.success("Asset request submitted successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      setFormData({ reason: "", quantity: 1 });
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Failed to submit request.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -45,52 +83,7 @@ const AssetRequestPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage({ type: "", text: "" });
-
-    try {
-      // 1️⃣ Get logged-in user
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        throw new Error("User not authenticated");
-      }
-
-      // 2️⃣ Insert request into asset_requests table
-      const { error } = await supabase.from("asset_requests").insert([
-        {
-          user_id: user.id,
-          reason: formData.reason,
-          quantity: formData.quantity,
-          status: "requested", // default workflow
-          asset_id: null,    // optional for now
-        },
-      ]);
-
-      if (error) throw error;
-
-      // 3️⃣ Success
-      toast.success("Asset request submitted successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-
-      setFormData({
-        reason: "",
-        quantity: 1,
-      });
-    } catch (error) {
-      console.error("Supabase error:", error);
-      toast.error(error.message || "Failed to submit request.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    } finally {
-      setLoading(false);
-    }
+    await submitRequest();
   };
 
   return (

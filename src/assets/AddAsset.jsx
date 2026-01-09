@@ -1,7 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { useContext } from "react";
 import { UserContext } from "../UserContext";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -16,6 +15,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { supabase } from "../supabaseClient";
 import Sidebar from "../components/Sidebar";
+import { useSupabase } from "../supabase/hooks/useSupabase";
+
 const AddAssetPage = () => {
   const navigate = useNavigate();
   const formRef = useRef(null);
@@ -29,11 +30,83 @@ const AddAssetPage = () => {
     assigned_to: null,
   });
 
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [assignedUser, setAssignedUser] = useState(null);
   const [activeTab, setActiveTab] = useState("add-asset");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  /* ---------------- ADD ASSET SERVICE ---------------- */
+  const addAssetService = async () => {
+    if (!validateForm()) {
+      throw new Error("Please fix the errors in the form");
+    }
+
+    const { data, error } = await supabase
+      .from("assets")
+      .insert([
+        {
+          name: formData.name,
+          tag: formData.tag,
+          serial: formData.serial,
+          description: formData.description || null,
+          is_active: formData.is_active,
+          assigned_to: assignedUser?.id || null,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  };
+
+  const { isLoading: loading, error, onRequest: submitAsset } = useSupabase({
+    onRequestService: addAssetService,
+    onSuccess: () => {
+      toast.success("Asset added successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      setFormData({
+        name: "",
+        tag: "",
+        serial: "",
+        description: "",
+        is_active: true,
+        assigned_to: null,
+      });
+      setAssignedUser(null);
+      setErrors({});
+
+      if (formRef.current) {
+        formRef.current.reset();
+      }
+
+      setTimeout(() => {
+        navigate("/assets");
+      }, 2000);
+    },
+    onError: (error) => {
+      toast.error(`Failed to add asset: ${error?.message || error}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  });
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -60,7 +133,6 @@ const AddAssetPage = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -68,77 +140,7 @@ const AddAssetPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      toast.error("Please fix the errors in the form");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const { data, error } = await supabase
-        .from("assets")
-        .insert([
-          {
-            name: formData.name,
-            tag: formData.tag,
-            serial: formData.serial,
-            description: formData.description || null,
-            is_active: formData.is_active,
-            assigned_to: assignedUser?.id || null,
-            created_at: new Date().toISOString(),
-          },
-        ])
-        .select()
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success("Asset added successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      // Reset form
-      setFormData({
-        name: "",
-        tag: "",
-        serial: "",
-        description: "",
-        is_active: true,
-        assigned_to: null,
-      });
-      setAssignedUser(null);
-      setErrors({});
-
-      if (formRef.current) {
-        formRef.current.reset();
-      }
-
-      // Navigate back to assets page after 2 seconds
-      setTimeout(() => {
-        navigate("/assets");
-      }, 2000);
-    } catch (error) {
-      console.error("Error adding asset:", error);
-      toast.error(`Failed to add asset: ${error.message}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setLoading(false);
-    }
+    await submitAsset();
   };
 
   const handleReset = () => {

@@ -4,56 +4,59 @@ import { supabase } from "../supabaseClient";
 import { UserContext } from "../UserContext";
 import PageHeader from "../components/PageHeader";
 import Sidebar from "../components/Sidebar";
+import { useSupabase } from "../supabase/hooks/useSupabase";
 
 const MyRequests = () => {
   const navigate = useNavigate();
   const { profile, user } = useContext(UserContext);
   const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("my-requests");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    fetchMyRequests();
-  }, [user]);
-
-  const fetchMyRequests = async () => {
-    try {
-      setLoading(true);
-      if (!user?.id) return;
-
-      const { data, error: queryError } = await supabase
-        .from("asset_requests")
-        .select(
-          `
-          id,
-          reason,
-          quantity,
-          status,
-          admin_note,
-          created_at,
-          assets (
-            id,
-            name,
-            tag,
-            serial
-          )
-        `
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (queryError) throw queryError;
-      setRequests(data || []);
-      setError(null);
-    } catch (err) {
-      console.error("Error fetching requests:", err);
-      setError("Failed to load your requests");
-    } finally {
-      setLoading(false);
+  /* ---------------- FETCH REQUESTS SERVICE ---------------- */
+  const fetchMyRequestsService = async () => {
+    if (!user?.id) {
+      throw new Error("User ID not available");
     }
+
+    const { data, error } = await supabase
+      .from("asset_requests")
+      .select(
+        `
+        id,
+        reason,
+        quantity,
+        status,
+        admin_note,
+        created_at,
+        assets (
+          id,
+          name,
+          tag,
+          serial
+        )
+      `
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   };
+
+  const { isLoading: loading, error, onRequest: fetchMyRequests } = useSupabase({
+    onRequestService: fetchMyRequestsService,
+    onSuccess: (data) => setRequests(data),
+    onError: (error) => {
+      console.error("Error fetching requests:", error);
+    }
+  });
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchMyRequests();
+    }
+  }, [user]);
 
   const getStatusBadge = (status) => {
     const styles = {
