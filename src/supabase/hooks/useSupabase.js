@@ -41,8 +41,3 @@ export const useSupabase = (
 
   return { isLoading, error, data, onRequest, setError };
 };
-//for using the hook this way is prefered
-
-// const { data, isLoading, error, onRequest, setError } = useFirebase({
-// onRequestService: Api.auth.createAccount,
-// });
