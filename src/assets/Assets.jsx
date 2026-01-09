@@ -6,6 +6,8 @@ import Sidebar from "../components/Sidebar";
 import { UserContext } from "../UserContext";
 import { isAdmin } from "../utils/adminUtils";
 import { useSupabase } from "../supabase/hooks/useSupabase";
+import { fetchAssets as fetchAssetsService, assignAssetToUser, removeAssetAssignment, deleteAsset } from "../supabase/services/assetService";
+import { fetchUsersForAssignment } from "../supabase/services/userService";
 import {
   Search,
   Filter,
@@ -52,52 +54,28 @@ const AssetsPage = () => {
   const params = new URLSearchParams(location.search);
   const userId = params.get("userId");
 
-  /* ---------------- FETCH ASSETS SERVICE ---------------- */
-  const fetchAssetsService = async () => {
-    let query = supabase
-      .from("assets")
-      .select(`
-        id,
-        name,
-        tag,
-        serial,
-        description,
-        is_active,
-        created_at,
-        assigned_to,
-        assigned_user:profiles (
-          id,
-          first_name,
-          last_name,
-          email
-        )
-      `)
-      .order("created_at", { ascending: false });
-
-    if (userId) {
-      query = query.eq("assigned_to", userId);
-    } else if (!isAdmin(profile)) {
-      query = query.eq("assigned_to", profile?.id);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    return data || [];
+  /* ---------------- FETCH ASSETS SERVICE WRAPPER ---------------- */
+  const fetchAssetsHandler = async () => {
+    const data = await fetchAssetsService(userId, isAdmin(profile), profile?.id);
+    return data;
   };
 
-  const { isLoading: loading, error, onRequest: fetchAssets } = useSupabase({
-    onRequestService: fetchAssetsService,
+  const { isLoading: loading, error, onRequest: triggerFetchAssets } = useSupabase({
+    onRequestService: fetchAssetsHandler,
     onSuccess: (data) => {
+      if (!data) {
+        setAssets([]);
+        setFilteredAssets([]);
+        setStats({ active: 0, inactive: 0, assigned: 0 });
+        return;
+      }
+
       setAssets(data);
       setFilteredAssets(data);
       
-      const activeCount = data.filter(a => a.is_active).length || 0;
-      const inactiveCount = data.length - activeCount;
-      const assignedCount = data.filter(a => a.assigned_to).length || 0;
+      const activeCount = (data || []).filter(a => a.is_active).length || 0;
+      const inactiveCount = (data || []).length - activeCount;
+      const assignedCount = (data || []).filter(a => a.assigned_to).length || 0;
       
       setStats({
         active: activeCount,
@@ -107,23 +85,20 @@ const AssetsPage = () => {
     },
     onError: (error) => {
       console.error("Error fetching assets:", error);
+      setAssets([]);
+      setFilteredAssets([]);
+      setStats({ active: 0, inactive: 0, assigned: 0 });
     }
   });
 
   useEffect(() => {
-    fetchAssets();
+    triggerFetchAssets();
   }, [userId]);
 
   /* ---------------- FETCH ALL USERS FOR ASSIGNMENT (ADMIN ONLY) ---------------- */
-  const fetchUsersForAssignment = async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, email, first_name, last_name, is_active")
-      .order("first_name", { ascending: true });
-
-    if (!error) {
-      setAssignedUsers(data || []);
-    }
+  const fetchUsersHandler = async () => {
+    const data = await fetchUsersForAssignment();
+    setAssignedUsers(data);
   };
 
   /* ---------------- OPEN ASSIGN MODAL AND FETCH USERS ---------------- */
@@ -132,7 +107,7 @@ const AssetsPage = () => {
     setSelectedUser(asset.assigned_to || null);
     setAssignError(null);
     setShowAssignModal(true);
-    await fetchUsersForAssignment();
+    await fetchUsersHandler();
   };
 
   /* ---------------- ASSIGN/REASSIGN ASSET TO USER ---------------- */
@@ -146,12 +121,7 @@ const AssetsPage = () => {
     setAssignError(null);
 
     try {
-      const { error } = await supabase
-        .from("assets")
-        .update({ assigned_to: selectedUser })
-        .eq("id", selectedAsset.id);
-
-      if (error) throw error;
+      await assignAssetToUser(selectedAsset.id, selectedUser);
 
       // Update local state
       const updatedAssets = assets.map((asset) =>
@@ -191,12 +161,7 @@ const AssetsPage = () => {
     setRemoveLoading(true);
 
     try {
-      const { error } = await supabase
-        .from("assets")
-        .update({ assigned_to: null })
-        .eq("id", assetToRemove.id);
-
-      if (error) throw error;
+      await removeAssetAssignment(assetToRemove.id);
 
       // Update local state
       const updatedAssets = assets.map((asset) =>
@@ -235,12 +200,7 @@ const AssetsPage = () => {
     setDeleteLoading(true);
 
     try {
-      const { error } = await supabase
-        .from("assets")
-        .delete()
-        .eq("id", assetToDelete.id);
-
-      if (error) throw error;
+      await deleteAsset(assetToDelete.id);
 
       // Update local state
       const updatedAssets = assets.filter((asset) => asset.id !== assetToDelete.id);
@@ -336,7 +296,7 @@ const AssetsPage = () => {
               </div>
               <div className="mt-6 flex gap-3">
                 <button
-                  onClick={fetchAssets}
+                  onClick={triggerFetchAssets}
                   className="px-5 py-2.5 bg-linear-to-r from-red-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
@@ -395,7 +355,7 @@ const AssetsPage = () => {
 
             <div className="flex items-center gap-4">
               <button
-                onClick={fetchAssets}
+                onClick={triggerFetchAssets}
                 className="p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
                 title="Refresh"
               >

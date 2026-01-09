@@ -6,6 +6,7 @@ import Sidebar from "./components/Sidebar";
 import { UserContext } from "./UserContext";
 import { isAdmin } from "./utils/adminUtils";
 import { useSupabase } from "./supabase/hooks/useSupabase";
+import { fetchAllUsers } from "./supabase/services/userService";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
@@ -17,14 +18,7 @@ const AllUsers = () => {
 
   /* ---------------- FETCH USERS SERVICE ---------------- */
   const fetchUsersService = async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, email, first_name, last_name, is_active");
-
-    if (error) {
-      throw new Error(error.message);
-    }
-    return data || [];
+    return await fetchAllUsers();
   };
 
   const { data, isLoading: loading, error, onRequest: fetchUsers } = useSupabase({

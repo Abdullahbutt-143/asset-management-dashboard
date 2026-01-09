@@ -16,6 +16,8 @@ import {
 import { supabase } from "../supabaseClient";
 import Sidebar from "../components/Sidebar";
 import { useSupabase } from "../supabase/hooks/useSupabase";
+import { validateAssetForm } from "../utils/validationUtils";
+import { addAsset } from "../supabase/services/assetService";
 
 const AddAssetPage = () => {
   const navigate = useNavigate();
@@ -37,31 +39,24 @@ const AddAssetPage = () => {
 
   /* ---------------- ADD ASSET SERVICE ---------------- */
   const addAssetService = async () => {
-    if (!validateForm()) {
+    const validation = validateAssetForm(formData);
+    
+    if (!validation.isValid) {
+      setErrors(validation.errors);
       throw new Error("Please fix the errors in the form");
     }
 
-    const { data, error } = await supabase
-      .from("assets")
-      .insert([
-        {
-          name: formData.name,
-          tag: formData.tag,
-          serial: formData.serial,
-          description: formData.description || null,
-          is_active: formData.is_active,
-          assigned_to: assignedUser?.id || null,
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select()
-      .single();
+    const assetData = {
+      name: formData.name,
+      tag: formData.tag,
+      serial: formData.serial,
+      description: formData.description || null,
+      is_active: formData.is_active,
+      assigned_to: assignedUser?.id || null,
+      created_at: new Date().toISOString(),
+    };
 
-    if (error) {
-      throw error;
-    }
-
-    return data;
+    return await addAsset(assetData);
   };
 
   const { isLoading: loading, error, onRequest: submitAsset } = useSupabase({
@@ -106,25 +101,6 @@ const AddAssetPage = () => {
       });
     }
   });
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Asset name is required";
-    }
-
-    if (!formData.tag.trim()) {
-      newErrors.tag = "Asset tag is required";
-    }
-
-    if (!formData.serial.trim()) {
-      newErrors.serial = "Serial number is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
