@@ -31,13 +31,10 @@ const AddAssetPage = () => {
     is_active: true,
     assigned_to: null,
   });
-
   const [errors, setErrors] = useState({});
   const [assignedUser, setAssignedUser] = useState(null);
   const [activeTab, setActiveTab] = useState("add-asset");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  /* ---------------- ADD ASSET SERVICE ---------------- */
   const addAssetService = async () => {
     const validation = validateAssetForm(formData);
 
@@ -45,7 +42,6 @@ const AddAssetPage = () => {
       setErrors(validation.errors);
       throw new Error("Please fix the errors in the form");
     }
-
     const assetData = {
       name: formData.name,
       tag: formData.tag,
@@ -55,7 +51,6 @@ const AddAssetPage = () => {
       assigned_to: assignedUser?.id || null,
       created_at: new Date().toISOString(),
     };
-
     return await addAsset(assetData);
   };
 
@@ -122,7 +117,6 @@ const AddAssetPage = () => {
     e.preventDefault();
     await submitAsset();
   };
-
   const handleReset = () => {
     setFormData({
       name: "",
