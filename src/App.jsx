@@ -1,15 +1,26 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Suspense } from "react-router-dom";
+import { lazy } from "react";
 import { UserProvider } from "./UserContext";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
-import AssetManagementDashboard from "./AssetManagementDashboard";
-import AllUsers from "./AllUsers";
 import Login from "./Login";
-import AssetsPage from "./assets/Assets";
-import AssetRequestPage from "./assets/AssetRequestPage";
-import GetAssets from "./assets/GetAssets";
-import AddAssetPage from "./assets/AddAsset";
-import MyRequests from "./assets/MyRequests";
+
+// Lazy load components for code splitting
+const AssetManagementDashboard = lazy(() => import("./AssetManagementDashboard"));
+const AllUsers = lazy(() => import("./AllUsers"));
+const AssetsPage = lazy(() => import("./assets/Assets"));
+const AssetRequestPage = lazy(() => import("./assets/AssetRequestPage"));
+const GetAssets = lazy(() => import("./assets/GetAssets"));
+const AddAssetPage = lazy(() => import("./assets/AddAsset"));
+const MyRequests = lazy(() => import("./assets/MyRequests"));
+
+// Loading component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+);
+
 function App() {
   return (
     <UserProvider>
@@ -23,7 +34,9 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <AssetManagementDashboard />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AssetManagementDashboard />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -31,7 +44,9 @@ function App() {
             path="/users"
             element={
               <ProtectedRoute>
-                <AllUsers />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AllUsers />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -39,7 +54,9 @@ function App() {
             path="/add-asset"
             element={
               <AdminRoute>
-                <AddAssetPage />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AddAssetPage />
+                </Suspense>
               </AdminRoute>
             }
           />
@@ -47,7 +64,9 @@ function App() {
             path="/assets"
             element={
               <ProtectedRoute>
-                <AssetsPage />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AssetsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -55,7 +74,9 @@ function App() {
             path="/assets-request"
             element={
               <ProtectedRoute>
-                <AssetRequestPage />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AssetRequestPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -63,7 +84,9 @@ function App() {
             path="/get-assets"
             element={
               <AdminRoute>
-                <GetAssets />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <GetAssets />
+                </Suspense>
               </AdminRoute>
             }
           />
@@ -71,7 +94,9 @@ function App() {
             path="/my-requests"
             element={
               <ProtectedRoute>
-                <MyRequests />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <MyRequests />
+                </Suspense>
               </ProtectedRoute>
             }
           />
