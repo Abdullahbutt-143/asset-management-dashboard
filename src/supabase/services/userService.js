@@ -82,20 +82,75 @@ export const fetchUsersForAssignment = async () => {
  * @returns {Promise<Object>} Created user profile
  */
 export const createUser = async ({ email, password, first_name, last_name }) => {
-  const { data, error } = await supabase.functions.invoke("admin-create-user", {
-    body: {
+  try {
+    // Get the current session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    console.log("=== CREATE USER DEBUG ===");
+    console.log("Session exists:", !!session);
+    console.log("Session error:", sessionError);
+    console.log("Access token exists:", !!session?.access_token);
+    
+    if (sessionError || !session?.access_token) {
+      throw new Error("You must be logged in to create users. Please refresh the page and try again.");
+    }
+
+    console.log("Access token preview:", session.access_token.substring(0, 50) + "...");
+
+    // Get supabase URL for the function call
+    const supabaseUrl = supabase.supabaseUrl || import.meta.env.VITE_SUPABASE_URL;
+    const functionUrl = `${supabaseUrl}/functions/v1/admin-create-user`;
+
+    console.log("Function URL:", functionUrl);
+    console.log("Request body:", {
       email,
-      password,
       firstName: first_name,
       lastName: last_name,
-    },
-  });
+      hasPassword: !!password
+    });
 
-  if (error) {
-    throw new Error(error.message || "Failed to create user via admin function");
+    // Make direct fetch call with proper headers
+    const response = await fetch(functionUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        firstName: first_name,
+        lastName: last_name,
+      }),
+    });
+
+    console.log("Response status:", response.status);
+    console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+
+    const responseText = await response.text();
+    console.log("Response text:", responseText);
+
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error("Failed to parse response:", e);
+      throw new Error(`Invalid response from server: ${responseText}`);
+    }
+
+    if (!response.ok) {
+      console.error("Error response:", data);
+      throw new Error(data.error || data.message || "Failed to create user");
+    }
+
+    console.log("Success:", data);
+    return data;
+
+  } catch (err) {
+    console.error("=== CREATE USER ERROR ===");
+    console.error("Error:", err);
+    throw err;
   }
-
-  return data;
 };
 
 
@@ -105,12 +160,31 @@ export const createUser = async ({ email, password, first_name, last_name }) => 
  * @returns {Promise<void>}
  */
 export const deleteUser = async (userId) => {
-  const { error } = await supabase
-    .from("profiles")
-    .delete()
-    .eq("id", userId);
+  try {
+    // Delete assets first
+    const { error: assetsError } = await supabase
+      .from("assets")
+      .delete()
+      .eq("assigned_to", userId);
+    if (assetsError) throw new Error(assetsError.message);
 
-  if (error) {
-    throw new Error(error.message);
+    // Delete profile
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .delete()
+      .eq("id", userId);
+    if (profileError) throw new Error(profileError.message);
+
+    // Call Edge Function via supabase.functions.invoke
+    const { data, error } = await supabase.functions.invoke(
+      "admin-delete-user",
+      { body: { userId } }
+    );
+    if (error) throw new Error(error.message);
+
+    console.log("Auth user deleted:", data);
+  } catch (err) {
+    console.error("=== DELETE USER ERROR ===", err);
+    throw err;
   }
 };
