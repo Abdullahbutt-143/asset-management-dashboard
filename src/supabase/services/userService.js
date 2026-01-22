@@ -161,28 +161,27 @@ export const createUser = async ({ email, password, first_name, last_name }) => 
  */
 export const deleteUser = async (userId) => {
   try {
-    // Delete assets first
-    const { error: assetsError } = await supabase
-      .from("assets")
-      .delete()
-      .eq("assigned_to", userId);
-    if (assetsError) throw new Error(assetsError.message);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) throw new Error("Not logged in");
 
-    // Delete profile
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .delete()
-      .eq("id", userId);
-    if (profileError) throw new Error(profileError.message);
+    const functionUrl = `${supabase.supabaseUrl}/functions/v1/admin-delete-user`;
 
-    // Call Edge Function via supabase.functions.invoke
-    const { data, error } = await supabase.functions.invoke(
-      "admin-delete-user",
-      { body: { userId } }
-    );
-    if (error) throw new Error(error.message);
+    const response = await fetch(functionUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ userId }),
+    });
 
-    console.log("Auth user deleted:", data);
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || "Failed to delete user");
+
+    console.log("User deleted:", data);
+    return data;
+
   } catch (err) {
     console.error("=== DELETE USER ERROR ===", err);
     throw err;
