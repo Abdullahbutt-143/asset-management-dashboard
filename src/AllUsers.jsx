@@ -10,7 +10,7 @@ import { fetchAllUsers, createUser, deleteUser } from "./supabase/services/userS
 import CreateUserModal from "./components/CreateUserModal";
 import { toast } from "react-toastify";
 import { Trash2 } from "lucide-react";
-
+import ConfirmModal from "./components/ConfirmModal";
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,7 +20,9 @@ const AllUsers = () => {
   const [isCreateLoading, setIsCreateLoading] = useState(false);
   const { authLoading, profile } = useContext(UserContext);
   const navigate = useNavigate();
-
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   /* ---------------- FETCH USERS SERVICE ---------------- */
   const fetchUsersService = async () => {
     return await fetchAllUsers();
@@ -63,18 +65,27 @@ const AllUsers = () => {
     }
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+  const handleDeleteClick = (userId) => {
+  setSelectedUserId(userId);
+  setIsConfirmOpen(true);
+};
 
-    try {
-      await deleteUser(userId);
-      toast.success("User deleted successfully!");
-      fetchUsers(); // Refresh list
-    } catch (error) {
-      toast.error(error.message || "Error deleting user");
-    }
-  };
+const handleConfirmDelete = async () => {
+  if (!selectedUserId) return;
+  setIsDeleting(true);
 
+  try {
+    await deleteUser(selectedUserId);
+    toast.success("User deleted successfully!");
+    fetchUsers(); // Refresh list
+  } catch (error) {
+    toast.error(error.message || "Error deleting user");
+  } finally {
+    setIsDeleting(false);
+    setIsConfirmOpen(false);
+    setSelectedUserId(null);
+  }
+};
   /* ---------------- UI STATES ---------------- */
   if (loading) {
     return (
@@ -207,7 +218,7 @@ const AllUsers = () => {
                                   View Assets
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteUser(user.id)}
+                                  onClick={() => handleDeleteClick(user.id)}
                                   className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                                   title="Delete User"
                                 >
@@ -225,8 +236,15 @@ const AllUsers = () => {
             </div>
           </div>
         </div>
+        <ConfirmModal
+  isOpen={isConfirmOpen}
+  title="Delete User"
+  message="Are you sure you want to delete this user? This action cannot be undone."
+  onConfirm={handleConfirmDelete}
+  onCancel={() => setIsConfirmOpen(false)}
+  loading={isDeleting}
+/>
       </main>
-
       <CreateUserModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
