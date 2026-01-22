@@ -76,3 +76,41 @@ export const fetchUsersForAssignment = async () => {
 
   return data || [];
 };
+/**
+ * Create a new user (Admin version)
+ * @param {Object} userData - User details (email, password, first_name, last_name)
+ * @returns {Promise<Object>} Created user profile
+ */
+export const createUser = async ({ email, password, first_name, last_name }) => {
+  const { data, error } = await supabase.functions.invoke("admin-create-user", {
+    body: {
+      email,
+      password,
+      firstName: first_name,
+      lastName: last_name,
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message || "Failed to create user via admin function");
+  }
+
+  return data;
+};
+
+
+/**
+ * Delete a user profile (and optionally auth account)
+ * @param {string} userId - User ID to delete
+ * @returns {Promise<void>}
+ */
+export const deleteUser = async (userId) => {
+  const { error } = await supabase
+    .from("profiles")
+    .delete()
+    .eq("id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};

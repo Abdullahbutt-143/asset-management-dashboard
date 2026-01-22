@@ -6,13 +6,18 @@ import Sidebar from "./components/Sidebar";
 import { UserContext } from "./UserContext";
 import { isAdmin } from "./utils/adminUtils";
 import { useSupabase } from "./supabase/hooks/useSupabase";
-import { fetchAllUsers } from "./supabase/services/userService";
+import { fetchAllUsers, createUser, deleteUser } from "./supabase/services/userService";
+import CreateUserModal from "./components/CreateUserModal";
+import { toast } from "react-toastify";
+import { Trash2 } from "lucide-react";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("users");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateLoading, setIsCreateLoading] = useState(false);
   const { authLoading, profile } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -42,6 +47,33 @@ const AllUsers = () => {
       user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  /* ---------------- HANDLERS ---------------- */
+  const handleCreateUser = async (userData) => {
+    setIsCreateLoading(true);
+    try {
+      await createUser(userData);
+      toast.success("User created successfully!");
+      setIsModalOpen(false);
+      fetchUsers(); // Refresh list
+    } catch (error) {
+      toast.error(error.message || "Error creating user");
+    } finally {
+      setIsCreateLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      await deleteUser(userId);
+      toast.success("User deleted successfully!");
+      fetchUsers(); // Refresh list
+    } catch (error) {
+      toast.error(error.message || "Error deleting user");
+    }
+  };
 
   /* ---------------- UI STATES ---------------- */
   if (loading) {
@@ -89,13 +121,23 @@ const AllUsers = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Users</h2>
 
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="mt-4 sm:mt-0 pl-4 pr-4 py-2 border border-gray-300 rounded-lg w-64"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-4 pr-4 py-2 border border-gray-300 rounded-lg w-64"
+                />
+                {isAdmin(profile) && (
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+                  >
+                    Create User
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="mb-4 text-sm text-gray-600">
@@ -153,16 +195,27 @@ const AllUsers = () => {
                         </td>
 
                         <td className="px-6 py-4">
-                          {isAdmin(profile) && (
-                            <button
-                              onClick={() =>
-                                navigate(`/assets?userId=${user.id}`)
-                              }
-                              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
-                            >
-                              View Assets
-                            </button>
-                          )}
+                          <div className="flex gap-2">
+                            {isAdmin(profile) && (
+                              <>
+                                <button
+                                  onClick={() =>
+                                    navigate(`/assets?userId=${user.id}`)
+                                  }
+                                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+                                >
+                                  View Assets
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteUser(user.id)}
+                                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                  title="Delete User"
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -173,6 +226,13 @@ const AllUsers = () => {
           </div>
         </div>
       </main>
+
+      <CreateUserModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleCreateUser}
+        loading={isCreateLoading}
+      />
     </div>
   );
 };
