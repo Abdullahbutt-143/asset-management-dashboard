@@ -140,10 +140,12 @@
 }
 
 button, [role="button"] {
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
 a {
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
@@ -234,4 +236,37 @@ a:focus-visible,
 input:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+}
+
+/* Cursor Pointer for Interactive Elements */
+[onclick],
+[role="button"],
+[role="link"],
+[role="tab"],
+[role="menuitem"],
+[role="checkbox"],
+[role="radio"],
+input[type="checkbox"],
+input[type="radio"],
+select {
+  cursor: pointer;
+}
+
+/* Clickable containers and cards */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Interactive table rows */
+tr[onclick],
+tr.clickable {
+  cursor: pointer;
+}
+
+/* Hover state for clickable elements */
+[onclick]:hover,
+[role="button"]:not(:disabled):hover,
+[role="link"]:hover,
+.cursor-pointer:not(:disabled):hover {
+  opacity: 0.9;
 }
