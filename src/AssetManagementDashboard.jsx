@@ -14,6 +14,8 @@ import { useRequests } from "./hooks/useRequests";
 import { supabase } from "./supabaseClient";
 import Sidebar from "./components/Sidebar";
 import PageHeader from "./components/PageHeader";
+import StatCard from "./components/StatCard";
+import AssetTypeCard from "./components/AssetTypeCard";
 import { isAdmin } from "./utils/adminUtils";
 
 const AssetManagementDashboard = () => {
@@ -35,6 +37,13 @@ const AssetManagementDashboard = () => {
     activeRequests: 0,
     availableAssets: 0,
     assignedAssets: 0,
+  });
+
+  const [assetTypeCounts, setAssetTypeCounts] = useState({
+    laptops: 0,
+    mice: 0,
+    keyboards: 0,
+    monitors: 0,
   });
 
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
@@ -91,6 +100,34 @@ const AssetManagementDashboard = () => {
       activeRequests: activeRequests,
       availableAssets: availableAssets,
       assignedAssets: assignedAssets,
+    });
+
+    // Calculate asset type counts
+    const laptopCount = assets.filter(asset => 
+      asset.asset_type?.toLowerCase().includes('laptop') || 
+      asset.name?.toLowerCase().includes('laptop')
+    ).length;
+    
+    const mouseCount = assets.filter(asset => 
+      asset.asset_type?.toLowerCase().includes('mouse') || 
+      asset.name?.toLowerCase().includes('mouse')
+    ).length;
+    
+    const keyboardCount = assets.filter(asset => 
+      asset.asset_type?.toLowerCase().includes('keyboard') || 
+      asset.name?.toLowerCase().includes('keyboard')
+    ).length;
+    
+    const monitorCount = assets.filter(asset => 
+      asset.asset_type?.toLowerCase().includes('monitor') || 
+      asset.name?.toLowerCase().includes('monitor')
+    ).length;
+
+    setAssetTypeCounts({
+      laptops: laptopCount,
+      mice: mouseCount,
+      keyboards: keyboardCount,
+      monitors: monitorCount,
     });
   }, [assets, totalAssets, users, activeRequests, usersLoading, assetsLoading, requestsLoading]);
 
@@ -151,108 +188,88 @@ const AssetManagementDashboard = () => {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Total Users */}
-            <div className="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden relative">
-              <div className="absolute inset-0 bg-linear-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 text-sm font-medium">Total Users</p>
-                  <h3 className="text-3xl font-bold text-gray-900 mt-2">
-                    {usersLoading ? (
-                      <div className="h-8 w-20 bg-linear-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
-                    ) : (
-                      <span className="bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent animate-fadeIn">
-                        {stats.totalUsers.toLocaleString()}
-                      </span>
-                    )}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-2 font-medium">
-                    {usersLoading ? "Loading..." : "Active team members"}
-                  </p>
-                </div>
-                <div className="w-16 h-16 bg-linear-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
-                  <UserGroupIcon className="w-8 h-8 text-blue-600" />
-                </div>
-              </div>
-            </div>
+            <StatCard
+              title="Total Users"
+              value={stats.totalUsers.toLocaleString()}
+              subtitle="Active team members"
+              icon={UserGroupIcon}
+              colorClass="blue"
+              isLoading={usersLoading}
+            />
 
             {/* Total Assets */}
-            <div className="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:border-green-200 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden relative">
-              <div className="absolute inset-0 bg-linear-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 text-sm font-medium">Total Assets</p>
-                  <h3 className="text-3xl font-bold text-gray-900 mt-2">
-                    {assetsLoading ? (
-                      <div className="h-8 w-20 bg-linear-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
-                    ) : (
-                      <span className="bg-linear-to-r from-green-600 to-green-700 bg-clip-text text-transparent animate-fadeIn">
-                        {stats.totalAssets.toLocaleString()}
-                      </span>
-                    )}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-2 flex-wrap">
-                    <span className="text-xs px-3 py-1.5 bg-green-100 text-green-800 rounded-full font-semibold hover:bg-green-200 transition-colors duration-200">
-                      {assetsLoading ? "..." : stats.assignedAssets} assigned
-                    </span>
-                    <span className="text-xs px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full font-semibold hover:bg-blue-200 transition-colors duration-200">
-                      {assetsLoading ? "..." : stats.availableAssets} available
-                    </span>
-                  </div>
-                </div>
-                <div className="w-16 h-16 bg-linear-to-br from-green-100 to-green-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
-                  <ComputerDesktopIcon className="w-8 h-8 text-green-600" />
-                </div>
-              </div>
-            </div>
+            <StatCard
+              title="Total Assets"
+              value={stats.totalAssets.toLocaleString()}
+              subtitle="All inventory items"
+              icon={ComputerDesktopIcon}
+              colorClass="green"
+              isLoading={assetsLoading}
+              badges={
+                <>
+                  <span className="text-xs px-3 py-1.5 bg-green-100 text-green-800 rounded-full font-semibold hover:bg-green-200 transition-colors duration-200">
+                    {assetsLoading ? "..." : stats.assignedAssets} assigned
+                  </span>
+                  <span className="text-xs px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full font-semibold hover:bg-blue-200 transition-colors duration-200">
+                    {assetsLoading ? "..." : stats.availableAssets} available
+                  </span>
+                </>
+              }
+            />
 
             {/* Active Requests */}
-            <div className="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:border-orange-200 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden relative">
-              <div className="absolute inset-0 bg-linear-to-br from-orange-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 text-sm font-medium">Active Requests</p>
-                  <h3 className="text-3xl font-bold text-gray-900 mt-2">
-                    {requestsLoading ? (
-                      <div className="h-8 w-20 bg-linear-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
-                    ) : (
-                      <span className="bg-linear-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent animate-fadeIn">
-                        {stats.activeRequests.toLocaleString()}
-                      </span>
-                    )}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-2 font-medium">
-                    {requestsLoading ? "Loading..." : "Pending approvals"}
-                  </p>
-                </div>
-                <div className="w-16 h-16 bg-linear-to-br from-orange-100 to-orange-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
-                  <ClipboardDocumentCheckIcon className="w-8 h-8 text-orange-600" />
-                </div>
-              </div>
-            </div>
+            <StatCard
+              title="Active Requests"
+              value={stats.activeRequests.toLocaleString()}
+              subtitle="Pending approvals"
+              icon={ClipboardDocumentCheckIcon}
+              colorClass="orange"
+              isLoading={requestsLoading}
+            />
 
             {/* Available Assets */}
-            <div className="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:border-purple-200 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden relative">
-              <div className="absolute inset-0 bg-linear-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 text-sm font-medium">Available Assets</p>
-                  <h3 className="text-3xl font-bold text-gray-900 mt-2">
-                    {assetsLoading ? (
-                      <div className="h-8 w-20 bg-linear-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
-                    ) : (
-                      <span className="bg-linear-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent animate-fadeIn">
-                        {stats.availableAssets.toLocaleString()}
-                      </span>
-                    )}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-2 font-medium">
-                    {assetsLoading ? "Loading..." : "Ready for assignment"}
-                  </p>
-                </div>
-                <div className="w-16 h-16 bg-linear-to-br from-purple-100 to-purple-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md">
-                  <CubeIcon className="w-8 h-8 text-purple-600" />
-                </div>
-              </div>
+            <StatCard
+              title="Available Assets"
+              value={stats.availableAssets.toLocaleString()}
+              subtitle="Ready for assignment"
+              icon={CubeIcon}
+              colorClass="purple"
+              isLoading={assetsLoading}
+            />
+          </div>
+
+          {/* Asset Type Cards */}
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Asset Types</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <AssetTypeCard
+                title="Total Laptops"
+                count={assetTypeCounts.laptops}
+                icon={ComputerDesktopIcon}
+                colorClass="red"
+                isLoading={assetsLoading}
+              />
+              <AssetTypeCard
+                title="Total Mice"
+                count={assetTypeCounts.mice}
+                icon={CubeIcon}
+                colorClass="indigo"
+                isLoading={assetsLoading}
+              />
+              <AssetTypeCard
+                title="Total Keyboards"
+                count={assetTypeCounts.keyboards}
+                icon={CubeIcon}
+                colorClass="pink"
+                isLoading={assetsLoading}
+              />
+              <AssetTypeCard
+                title="Total Monitors"
+                count={assetTypeCounts.monitors}
+                icon={ComputerDesktopIcon}
+                colorClass="blue"
+                isLoading={assetsLoading}
+              />
             </div>
           </div>
 
