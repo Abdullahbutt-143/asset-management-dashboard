@@ -18,6 +18,7 @@ export const useAssets = () => {
         .select(`
           id,
           name,
+          tag,
           is_active,
           created_at,
           assigned_to:profiles (

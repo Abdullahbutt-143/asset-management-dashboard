@@ -104,22 +104,22 @@ const AssetManagementDashboard = () => {
 
     // Calculate asset type counts
     const laptopCount = assets.filter(asset => 
-      asset.asset_type?.toLowerCase().includes('laptop') || 
+      asset.tag?.toLowerCase() === 'laptop' || 
       asset.name?.toLowerCase().includes('laptop')
     ).length;
     
     const mouseCount = assets.filter(asset => 
-      asset.asset_type?.toLowerCase().includes('mouse') || 
+      asset.tag?.toLowerCase() === 'mouse' || 
       asset.name?.toLowerCase().includes('mouse')
     ).length;
     
     const keyboardCount = assets.filter(asset => 
-      asset.asset_type?.toLowerCase().includes('keyboard') || 
+      asset.tag?.toLowerCase() === 'keyboard' || 
       asset.name?.toLowerCase().includes('keyboard')
     ).length;
     
     const monitorCount = assets.filter(asset => 
-      asset.asset_type?.toLowerCase().includes('monitor') || 
+      asset.tag?.toLowerCase() === 'monitor' || 
       asset.name?.toLowerCase().includes('monitor')
     ).length;
 
