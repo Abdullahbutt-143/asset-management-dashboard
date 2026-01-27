@@ -14,7 +14,7 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen, nav
     { key: "dashboard", label: "dashboard", icon: CubeIcon, path: "/", adminOnly: false },
     { key: "assets", label: "assets", icon: ComputerDesktopIcon, path: "/assets", adminOnly: false },
     { key: "my-requests", label: "my-requests", icon: ClipboardDocumentCheckIcon, path: "/my-requests", adminOnly: false },
-    { key: "users", label: "users", icon: UserGroupIcon, path: "/users", adminOnly: false },
+    { key: "users", label: "users", icon: UserGroupIcon, path: "/users", adminOnly: true },
     { key: "requests", label: "requests", icon: ClipboardDocumentCheckIcon, path: "/assets-request", adminOnly: false },
     { key: "requested-assets", label: "requested-assets", icon: ComputerDesktopIcon, path: "/get-assets", adminOnly: true },
     { key: "add-asset", label: "add-asset", icon: PlusIcon, path: "/add-asset", adminOnly: true },
